@@ -5,24 +5,24 @@ PolarMon connects to your
 and displays some data from its sensors with the ability to save the fetched data.
 
 <img
-    src="fastlane/metadata/android/en_US/images/phoneScreenshots/1.png"
+    src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.png"
     alt="Main page"
     title="Main page"
     width="350"
 /> <img
-    src="fastlane/metadata/android/en_US/images/phoneScreenshots/2.png"
+    src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.png"
     alt="ECG"
     title="ECG"
     width="350"
 />
 
 <img
-    src="fastlane/metadata/android/en_US/images/phoneScreenshots/3.png"
+    src="fastlane/metadata/android/en-US/images/phoneScreenshots/3.png"
     alt="Saved recording"
     title="Saved recording"
     width="350"
 /> <img
-    src="fastlane/metadata/android/en_US/images/phoneScreenshots/4.png"
+    src="fastlane/metadata/android/en-US/images/phoneScreenshots/4.png"
     alt="List of recordings"
     title="List of recordings"
     width="350"
