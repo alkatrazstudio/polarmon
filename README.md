@@ -53,3 +53,4 @@ The above limitations may or may not be resolved in the future.
 [MPL v2.0](LICENSE)
 
 **NOTE:** PolarMon uses [Polar's SDK](https://github.com/polarofficial/polar-ble-sdk)
+which is distributed under [Polar SDK License](https://github.com/polarofficial/polar-ble-sdk/blob/master/Polar_SDK_License.txt).
