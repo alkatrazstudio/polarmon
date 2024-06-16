@@ -55,7 +55,7 @@ Future<void> openHelpPage(BuildContext context) async {
       githubProject: 'polarmon',
       manualHtml: _manualHtml,
       manualHtmlWidgets: _manualHtmlWidgets,
-      license: HelpPageLicense.mpl,
+      license: HelpPageLicense.mpl2,
       libraries: [
         const HelpPagePackage(
           name: 'Polar SDK',
