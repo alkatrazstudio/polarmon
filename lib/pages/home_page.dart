@@ -6,6 +6,7 @@ import '../pages/help_page.dart';
 import '../pages/recording_page.dart';
 import '../pages/settings_page.dart';
 import '../util/device.dart';
+import '../util/future_util.dart';
 import '../util/recording_manager.dart';
 import '../widgets/ecg_streaming_graph.dart';
 import '../widgets/hr_display.dart';
@@ -35,15 +36,15 @@ class _HomePageState extends State<HomePage> {
   var prevStatus = DeviceStatus.unknown;
 
   void startConnecting() {
-    var newConnectingFuture = Device.connectToFirst();
+    var newConnectingFuture = Device.connectToFirst().showErrorToUser(context);
     setState(() {
       connectingFuture = newConnectingFuture;
     });
     newConnectingFuture.then((newDevice) => setState((){
       device = newDevice;
-      hrStream = newDevice.startHrStreaming();
+      hrStream = newDevice.startHrStreaming().showErrorToUser(context);
       if(enableEcg && ecgStream == null)
-        ecgStream = newDevice.startEcgStreaming();
+        ecgStream = newDevice.startEcgStreaming().showErrorToUser(context);
       prevStatus = DeviceStatus.unknown;
     })).onError((error, stackTrace) => setState((){
       device = null;
@@ -56,7 +57,7 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       enableEcg = true;
       if(ecgStream == null && device != null)
-        ecgStream = device!.startEcgStreaming();
+        ecgStream = device!.startEcgStreaming().showErrorToUser(context);
     });
   }
 
@@ -113,7 +114,7 @@ class _HomePageState extends State<HomePage> {
                   clearDevice();
                   disconnectingFuture = device?.disconnect().whenComplete(() => setState((){
                     disconnectingFuture = null;
-                  }));
+                  })).showErrorToUser(context);
                 });
               },
               child: const Text('Disconnect')

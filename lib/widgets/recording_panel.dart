@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 
 import '../pages/recording_page.dart';
 import '../util/device.dart';
+import '../util/future_util.dart';
 import '../util/mark_manager.dart';
 import '../util/recording_manager.dart';
 import '../util/time_util.dart';
@@ -39,15 +40,15 @@ class _RecordingPanelState extends State<RecordingPanel> {
   Future<void> saveRecording() async {
     var rec = await widget.device.getRecording();
     if(rec == null)
-      return;
+      throw Exception('Cannot fetch the recording or it\'s too short.');
     var title = await showSaveDialog(
       context: context,
       title: 'Name for this recording',
       suggestions: RecordingManager.titlesForAutocomplete()
     );
     var marks = (MarkManager.notifier.value ?? []).where((mark) => mark.startAt.microsecondsSinceEpoch >= rec.startedAt.microsecondsSinceEpoch).toList();
-    var savedRec = await RecordingManager.add(rec, title ?? '', marks);
-    await widget.device.deleteRecording();
+    var savedRec = await RecordingManager.add(rec, title ?? '', marks).showErrorToUser(context);
+    await widget.device.deleteRecording().showErrorToUser(context);
     Navigator.push<void>(
       context,
       MaterialPageRoute(builder: (context) => RecordingPage(rec: savedRec))
@@ -71,7 +72,7 @@ class _RecordingPanelState extends State<RecordingPanel> {
     if(title.isEmpty)
       title = 'N/A';
     mark.title = title;
-    await MarkManager.save(mark);
+    await MarkManager.save(mark).showErrorToUser(context);
   }
 
   @override
@@ -94,7 +95,7 @@ class _RecordingPanelState extends State<RecordingPanel> {
                         : (status.startedAt == null ? widget.device.startRecording() : saveRecording());
                       newRecFuture.whenComplete(() => setState(() {
                         recFuture = null;
-                      }));
+                      })).showErrorToUser(context);
                       setState(() {
                         recFuture = newRecFuture;
                       });
@@ -160,7 +161,7 @@ class _RecordingPanelState extends State<RecordingPanel> {
                       child: IconButton(
                         onPressed: () async {
                           lastMark.endAt = DateTime.now();
-                          await MarkManager.save(lastMark);
+                          await MarkManager.save(lastMark).showErrorToUser(context);
                         },
                         icon: const Icon(Icons.vertical_align_top),
                       )

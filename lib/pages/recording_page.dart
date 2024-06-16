@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 
+import '../util/future_util.dart';
 import '../util/recording_manager.dart';
 import '../util/settings.dart';
 import '../widgets/dialogs.dart';
@@ -47,7 +48,7 @@ class _RecordingPageState extends State<RecordingPage> {
         );
         if(newTitle == null)
           return;
-        await RecordingManager.rename(rec, newTitle);
+        await RecordingManager.rename(rec, newTitle).showErrorToUser(context);
         setState(() {});
       }),
       MainMenuItem('Delete', Icons.delete, () async {
@@ -55,7 +56,7 @@ class _RecordingPageState extends State<RecordingPage> {
         var text = 'Delete this recording:\n\n$title\n\nStart: ${fmt.format(rec.startTime)}\nEnd: ${fmt.format(rec.endTime)}';
         if(!await showConfirmDialog(context: context, text: text))
           return;
-        await RecordingManager.delete(rec);
+        await RecordingManager.delete(rec).showErrorToUser(context);
         Navigator.pop(context);
       })
     ]);
@@ -70,7 +71,7 @@ class _RecordingPageState extends State<RecordingPage> {
       ),
       body: SafeArea(
         child: FutureBuilder<List<int>>(
-          future: rec.getSamples(),
+          future: rec.getSamples().showErrorToUser(context),
           builder: (context, snapshot) {
             var samples = snapshot.data;
             if(samples == null)
