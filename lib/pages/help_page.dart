@@ -26,6 +26,9 @@ const _manualHtml = '''
   use the recording feature to save the HR graph.</li>
 <li>Access the list of recordings by tapping on <widget name="menu"></widget> in the top left corner.</li>
 <li>You can rename or remove a recording on its page.</li>
+<li>In case PolarMon is stuck when saving a recording,
+  restart the application and remove the recording from the device using the
+  <widget name="remove_recording"></widget> button.</li>
 <li><widget name="bookmark"></widget> - add a bookmark.</li>
 <li><widget name="bookmark_range_start"></widget> - add a bookmark for an interval
   (mark the end of the interval by tapping the <widget name="bookmark_range_end"></widget> button).</li>
@@ -43,7 +46,8 @@ Map<String, Widget> _manualHtmlWidgets = {
   'bookmark_range_end': Transform.rotate(
     angle: pi/2,
     child: const Icon(Icons.vertical_align_top),
-  )
+  ),
+  'remove_recording': const Icon(Icons.delete_forever),
 };
 
 Future<void> openHelpPage(BuildContext context) async {

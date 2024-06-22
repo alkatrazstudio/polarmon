@@ -36,6 +36,7 @@ String durationStr(DateTime? startedAt) {
 
 class _RecordingPanelState extends State<RecordingPanel> {
   Future<void>? recFuture;
+  Future<void>? delFuture;
 
   Future<void> saveRecording() async {
     var rec = await widget.device.getRecording();
@@ -104,19 +105,38 @@ class _RecordingPanelState extends State<RecordingPanel> {
                       ? Text(status.isOngoing ? 'Stop' : (status.startedAt == null ? 'Start' : 'Save'))
                       : const CircularProgressIndicator()
                   ),
-                  Icon(
-                    Icons.fiber_manual_record_rounded,
-                    color: color,
-                    size: 30,
-                  ),
-                  Text(
-                    'REC',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: color
+                  if(status.isOngoing || status.startedAt == null)
+                    Icon(
+                      Icons.fiber_manual_record_rounded,
+                      color: color,
+                      size: 30,
+                    ),
+                  if(!status.isOngoing && status.startedAt != null)
+                    IconButton(
+                      onPressed:() async {
+                        if(!await showConfirmDialog(context: context, text: 'Remove this recording?'))
+                          return;
+                        recFuture?.timeout(Duration.zero);
+                        var newDelFuture = widget.device.deleteRecording()
+                          .whenComplete(() => setState(() => delFuture = null))
+                          .showErrorToUser(context);
+                        setState(() {
+                          delFuture = newDelFuture;
+                          recFuture = null;
+                        });
+                      },
+                      color: Colors.red,
+                      icon: delFuture == null ? const Icon(Icons.delete_forever) : const CircularProgressIndicator(),
                     )
-                  ),
+                  else
+                    Text(
+                      'REC',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: color
+                      )
+                    ),
                   Pad.horizontalSpace,
                   if(status.isOngoing)
                     StreamBuilder(
