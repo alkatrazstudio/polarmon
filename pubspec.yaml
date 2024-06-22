@@ -2,7 +2,7 @@ name: polarmon
 description: 'PolarMon'
 publish_to: 'none'
 
-version: 0.1.1+2
+version: 0.1.2+3
 
 environment:
   sdk: ^3.4.3

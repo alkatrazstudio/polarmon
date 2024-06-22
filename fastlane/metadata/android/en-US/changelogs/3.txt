@@ -1,0 +1,2 @@
+- Added: ability to remove the current recording from the device
+- Improved: most errors are now shown to the user
