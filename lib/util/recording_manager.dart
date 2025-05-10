@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 
 import 'package:collection/collection.dart';
 import 'package:intl/intl.dart';
+import 'package:path/path.dart' as p;
 
 import '../util/device.dart';
 import '../util/file_util.dart';
@@ -29,10 +30,10 @@ class SavedRecording {
   final DateTime startTime;
   final DateTime endTime;
   final List<Mark> marks;
-  
+
   Future<File> samplesFile() async {
     var cleanId = id.replaceAll('.', '').replaceAll('/', '').trim();
-    var filename = 'recording/$cleanId.samples';
+    var filename = 'recordings/$cleanId.samples';
     var file = FileUtil.file(filename);
     return file;
   }
@@ -52,7 +53,7 @@ class SavedRecording {
     var file = await samplesFile();
     await file.delete();
   }
-  
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -91,7 +92,33 @@ abstract class RecordingManager {
     return file;
   }
 
+  static Future<void> migrateSamples() async {
+    var rootDir = await FileUtil.rootDir();
+    var fromDir = Directory('$rootDir/recording');
+    if(!await fromDir.exists())
+      return;
+    var toDir = Directory('$rootDir/recordings/samples');
+    await toDir.create(recursive: true);
+    var fromDirHasExtraFiles = false;
+    await for (var entry in fromDir.list()) {
+      if(entry is File && entry.path.endsWith('.samples')) {
+        var newPath = '${toDir.path}/${p.basename(entry.path)}';
+        await entry.rename(newPath);
+      } else {
+        fromDirHasExtraFiles = true;
+      }
+    }
+    if(!fromDirHasExtraFiles) {
+      try {
+        await fromDir.delete();
+      } catch(e) {
+        //
+      }
+    }
+  }
+
   static Future<List<SavedRecording>> loadList() async {
+    await migrateSamples();
     var recs = <SavedRecording>[];
     try {
       var file = await listFile();
@@ -123,13 +150,13 @@ abstract class RecordingManager {
     await file.writeAsString(json, flush: true);
     notifier.value = recs;
   }
-  
+
   static Future<SavedRecording> add(DeviceRecording rec, String title, List<Mark> marks) async {
     var endTime = rec.startedAt.add(Duration(seconds: rec.samples.length));
     var recId = '${TimeUtil.timeToStr(rec.startedAt)}_${TimeUtil.timeToStr(endTime)}';
     var savedRec = SavedRecording(
-      id: recId, 
-      title: title, 
+      id: recId,
+      title: title,
       startTime: rec.startedAt,
       endTime: endTime,
       marks: marks

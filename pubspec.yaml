@@ -20,6 +20,7 @@ dependencies:
   collection: any
   flutter_form_builder: 10.0.1
   form_builder_validators: 11.1.2
+  path: 1.9.1
 
   help_page:
     git:
