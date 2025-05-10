@@ -77,7 +77,8 @@ class Device {
   static void startMonitoring() async {
     polar.sdkFeatureReady.listen((event) {
       var featureCompleter = getFeatureCompleter(event.identifier, event.feature);
-      featureCompleter.complete();
+      if(!featureCompleter.isCompleted)
+        featureCompleter.complete();
       if(kDebugMode)
         print('FEATURE: ${event.feature.name}');
     });
