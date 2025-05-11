@@ -17,7 +17,7 @@ class Mark {
     this.expectingEnd = false
   }):
     startAt = startAt ?? DateTime.now();
-  
+
   String title;
   final DateTime startAt;
   DateTime? endAt;
@@ -98,9 +98,8 @@ abstract class MarkManager {
 
   static Future<void> saveList(List<Mark> marks) async {
     var items = listToJson(marks);
-    var json = jsonEncode(items);
     var file = await listFile();
-    await file.writeAsString(json, flush: true);
+    await FileUtil.writeJsonSafe(file, items);
     notifier.value = marks;
   }
 

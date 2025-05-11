@@ -106,7 +106,7 @@ class RecordingFile {
 
   Future<void> saveSamples(List<int> samples) async {
     var file = await samplesFile();
-    await file.writeAsBytes(samples, flush: true);
+    await FileUtil.writeBytesSafe(file, samples);
     _samples = samples;
     _samplesFuture = null;
   }
@@ -137,9 +137,8 @@ class RecordingFile {
 
   Future<void> saveMeta(RecordingMeta meta) async {
     var jsonObj = meta.toJson();
-    var json = jsonEncode(jsonObj);
     var file = await metaFile();
-    await file.writeAsString(json);
+    await FileUtil.writeJsonSafe(file, jsonObj);
     _meta = meta;
     _metaFuture = null;
   }

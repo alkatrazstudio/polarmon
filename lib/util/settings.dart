@@ -72,8 +72,7 @@ class Settings {
   }
 
   Future<void> save() async {
-    var json = jsonEncode(this);
-    await (await file()).writeAsString(json);
+    await FileUtil.writeJsonSafe(await file(), this);
     notifier.value = this;
   }
 }
