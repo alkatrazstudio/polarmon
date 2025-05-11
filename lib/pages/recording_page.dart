@@ -17,24 +17,40 @@ import '../widgets/pad.dart';
 
 class RecordingPage extends StatefulWidget {
   const RecordingPage({
-    required this.rec
+    required this.file
   });
 
-  final SavedRecording rec;
+  final RecordingFile file;
 
   @override
   State<RecordingPage> createState() => _RecordingPageState();
 }
 
 class _RecordingPageState extends State<RecordingPage> {
-  late SavedRecording rec;
-
-  String get title => rec.title.isEmpty ? rec.timeString : rec.title;
+  late RecordingFile file;
 
   @override
   void initState() {
     super.initState();
-    rec = widget.rec;
+    file = widget.file;
+  }
+
+  Future<String> title() async {
+    var meta = await file.loadMeta();
+    return meta.title;
+  }
+
+  Future<String> header() async {
+    var title = await this.title();
+    if(title.isEmpty)
+      return file.timeString;
+    return title;
+  }
+
+  Future<(RecordingMeta, List<int>)> loadMetaAndSamples() async {
+    var meta = await file.loadMeta();
+    var samples = await file.loadSamples();
+    return (meta, samples);
   }
 
   Widget menu(BuildContext context) {
@@ -44,19 +60,21 @@ class _RecordingPageState extends State<RecordingPage> {
           context: context,
           title: 'Name for this recording',
           suggestions: RecordingManager.titlesForAutocomplete(),
-          initialText: rec.title
+          initialText: await title()
         );
         if(newTitle == null)
           return;
-        await RecordingManager.rename(rec, newTitle).showErrorToUser(context);
-        setState(() {});
+        var newFile = await RecordingManager.rename(file, newTitle).showErrorToUser(context);
+        setState(() {
+          file = newFile;
+        });
       }),
       MainMenuItem('Delete', Icons.delete, () async {
         var fmt = DateFormat.yMMMd().add_Hms();
-        var text = 'Delete this recording:\n\n$title\n\nStart: ${fmt.format(rec.startTime)}\nEnd: ${fmt.format(rec.endTime)}';
+        var text = 'Delete this recording:\n\n$title\n\nStart: ${fmt.format(file.startTime)}\nEnd: ${fmt.format(file.endTime)}';
         if(!await showConfirmDialog(context: context, text: text))
           return;
-        await RecordingManager.delete(rec).showErrorToUser(context);
+        await RecordingManager.delete(file).showErrorToUser(context);
         Navigator.pop(context);
       })
     ]);
@@ -66,19 +84,20 @@ class _RecordingPageState extends State<RecordingPage> {
   Widget build(context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(title),
+        title: FutureBuilder(future: header(), builder: (context, snapshot) => Text(snapshot.data ?? '')),
         actions: [menu(context)],
       ),
       body: SafeArea(
-        child: FutureBuilder<List<int>>(
-          future: rec.getSamples().showErrorToUser(context),
+        child: FutureBuilder(
+          future: loadMetaAndSamples().showErrorToUser(context),
           builder: (context, snapshot) {
-            var samples = snapshot.data;
-            if(samples == null)
+            var data = snapshot.data;
+            if(data == null)
               return const CircularProgressIndicator();
+            var (meta, samples) = data;
 
-            var minTS = rec.startTime.microsecondsSinceEpoch;
-            var maxTS = rec.endTime.microsecondsSinceEpoch;
+            var minTS = file.startTime.microsecondsSinceEpoch;
+            var maxTS = file.endTime.microsecondsSinceEpoch;
 
             var points = <FlSpot>[];
             var ts = minTS;
@@ -95,26 +114,26 @@ class _RecordingPageState extends State<RecordingPage> {
                 ValueListenableBuilder(
                   valueListenable: RecordingManager.notifier,
                   builder: (context, recs, child) {
-                    var index = recs.indexOf(rec);
+                    var index = recs.indexOf(file);
                     return Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         IconButton(
                           onPressed: index <= 0 ? null : () {
                             setState(() {
-                              rec = recs[index - 1];
+                              file = recs[index - 1];
                             });
                           },
                           icon: const Icon(Icons.skip_previous)
                         ),
                         Text(
-                          rec.timeString,
+                          file.timeString,
                           style: Theme.of(context).textTheme.headlineSmall,
                         ),
                         IconButton(
                           onPressed: index >= (recs.length - 1) ? null : () {
                             setState(() {
-                              rec = recs[index + 1];
+                              file = recs[index + 1];
                             });
                           },
                           icon: const Icon(Icons.skip_next)
@@ -138,7 +157,7 @@ class _RecordingPageState extends State<RecordingPage> {
                     }
 
                     return Graph(
-                      key: ValueKey(rec),
+                      key: ValueKey(file),
                       maxVal: maxHr,
                       minVal: minHr,
                       minTS: minTS,
@@ -146,7 +165,7 @@ class _RecordingPageState extends State<RecordingPage> {
                       points: points,
                       offsetFromEnd: false,
                       clipX: false,
-                      marks: rec.marks,
+                      marks: meta.marks,
                       customRangeIsUsed: settings.hrCustomEnable
                     );
                   },

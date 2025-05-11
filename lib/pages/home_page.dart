@@ -259,8 +259,8 @@ class _HomePageState extends State<HomePage> {
                 return ListView(
                   children: items.reversed.map((item) => ListTile(
                     title: Text(item.timeString),
-                    subtitle: item.title.isEmpty ? null : Text(
-                      item.title,
+                    subtitle: item.fileTitle.isEmpty ? null : Text(
+                      item.fileTitle,
                       style: const TextStyle(
                         fontStyle: FontStyle.italic
                       )
@@ -268,7 +268,7 @@ class _HomePageState extends State<HomePage> {
                     onTap: () {
                       Navigator.push<void>(
                         context,
-                        MaterialPageRoute(builder: (context) => RecordingPage(rec: item))
+                        MaterialPageRoute(builder: (context) => RecordingPage(file: item))
                       );
                     },
                   )).toList(),

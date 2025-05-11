@@ -52,7 +52,7 @@ class _RecordingPanelState extends State<RecordingPanel> {
     await widget.device.deleteRecording().showErrorToUser(context);
     Navigator.push<void>(
       context,
-      MaterialPageRoute(builder: (context) => RecordingPage(rec: savedRec))
+      MaterialPageRoute(builder: (context) => RecordingPage(file: savedRec))
     );
   }
 
