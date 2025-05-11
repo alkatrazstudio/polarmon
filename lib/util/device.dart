@@ -13,9 +13,11 @@ class DeviceRecording {
     required this.startedAt,
     required this.samples
   });
-  
+
   final DateTime startedAt;
   final List<int> samples;
+
+  DateTime get finishedAt => startedAt.add(Duration(seconds: samples.length));
 }
 
 class DeviceRecordingStatus {
@@ -113,7 +115,7 @@ class Device {
     var device = Device(dev);
     return device;
   }
-  
+
   static DateTime? timestampFromExerciseId(String exerciseId) {
     if(!exerciseId.startsWith(exerciseIdPrefix))
       return null;

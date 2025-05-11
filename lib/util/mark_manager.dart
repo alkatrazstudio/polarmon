@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 
 import 'package:collection/collection.dart';
 
+import '../util/device.dart';
 import '../util/file_util.dart';
 
 class Mark {
@@ -50,9 +51,17 @@ class Mark {
 
 abstract class MarkManager {
   static final notifier = ValueNotifier<List<Mark>?>(null);
+  static const maxAutocompleteTitles = 100;
+  static List<String>? _autocompleteTitles;
+  static Future<List<String>>? _autocompleteTitlesFuture;
 
   static Future<File> listFile() async {
     var file = FileUtil.file('marks.json');
+    return file;
+  }
+
+  static Future<File> autocompleteTitlesFile() async {
+    var file = FileUtil.file('marks_autocomplete_titles.json');
     return file;
   }
 
@@ -73,6 +82,21 @@ abstract class MarkManager {
     return marks;
   }
 
+  static Future<void> migrateAutocompleteTitles(List<Mark> marks) async {
+    if(marks.isEmpty)
+      return;
+    var file = await autocompleteTitlesFile();
+    if(await file.exists())
+      return;
+    var titles = marks
+      .sortedBy((mark) => mark.startAt)
+      .reversed
+      .map((rec) => rec.title)
+      .where((title) => title.isNotEmpty)
+      .toList();
+    await saveAutocompleteTitles(titles);
+  }
+
   static Future<List<Mark>> loadList() async {
     List<Mark> marks;
     try {
@@ -84,6 +108,7 @@ abstract class MarkManager {
       marks = [];
     }
     notifier.value = marks;
+    await migrateAutocompleteTitles(marks);
     return marks;
   }
 
@@ -100,31 +125,96 @@ abstract class MarkManager {
     var items = listToJson(marks);
     var file = await listFile();
     await FileUtil.writeJsonSafe(file, items);
-    notifier.value = marks;
   }
 
-  static Future<void> save(Mark mark) async {
+  static List<Mark> filterByTime(DateTime fromTime, DateTime toTime) {
+    var allMarks = notifier.value ?? [];
+    var recMarks = allMarks.where((mark) =>
+      mark.startAt.microsecondsSinceEpoch >= fromTime.microsecondsSinceEpoch
+      &&
+      mark.startAt.microsecondsSinceEpoch <= toTime.microsecondsSinceEpoch
+    ).toList();
+    return recMarks;
+  }
+
+  static List<Mark> getForRec(DeviceRecording rec) {
+    var recMarks = filterByTime(rec.startedAt, rec.finishedAt);
+    return recMarks;
+  }
+
+  static Future<void> addMark(Mark mark, DeviceRecordingStatus recStatus) async {
     var marks = notifier.value?.toList();
     if(marks == null)
       throw Exception('MarkManager is no ready yet.');
-    var existingRecIndex = marks.indexWhere((m) => m.startAt == mark.startAt);
-    if(existingRecIndex == -1)
+    var existingIndex = marks.indexWhere((m) => m.startAt == mark.startAt);
+    if(existingIndex == -1)
       marks.add(mark);
     else
-      marks[existingRecIndex] = mark;
-    await saveList(marks);
+      marks[existingIndex] = mark;
+    notifier.value = marks;
+    await addAutocompleteTitle(mark.title);
+    if(!recStatus.isOngoing)
+      return;
+    var filterStartTime = recStatus.startedAt;
+    var marksToSave = filterStartTime == null ? marks : filterByTime(filterStartTime, DateTime.now());
+    await saveList(marksToSave);
   }
 
-  static List<String> titlesForAutocomplete() {
-    var suggestions = notifier
-      .value
-      ?.sortedBy((mark) => mark.startAt)
-      .reversed
-      .map((rec) => rec.title)
-      .where((title) => title.isNotEmpty)
-      .toSet()
-      .toList()
-      ?? [];
-    return suggestions;
+  static Future<void> deleteMarksFile() async {
+    try {
+      var file = await listFile();
+      await file.delete();
+    } catch(e) {
+      //
+    }
+  }
+
+  static Future<void> saveAutocompleteTitles(List<String> titles) async {
+    var titlesToSave = <String>[];
+    for(var title in titles) {
+      var upperTitle = title.toUpperCase();
+      if(titlesToSave.firstWhereOrNull((s) => s.toUpperCase() == upperTitle) != null)
+        continue;
+      titlesToSave.add(title);
+      if(titlesToSave.length == maxAutocompleteTitles)
+        break;
+    }
+
+    try {
+      var file = await autocompleteTitlesFile();
+      await FileUtil.writeJsonSafe(file, titlesToSave);
+    } catch(e) {
+      //
+    }
+
+    _autocompleteTitles = titlesToSave;
+    _autocompleteTitlesFuture = null;
+  }
+
+  static Future<void> addAutocompleteTitle(String title) async {
+    title = title.trim();
+    if(title.isEmpty)
+      return;
+    var titles = [title, ...await loadAutocompleteTitles()];
+    await saveAutocompleteTitles(titles);
+  }
+
+  static Future<List<String>> _loadAutocompleteTitles() async {
+    try {
+      var file = await autocompleteTitlesFile();
+      var json = await file.readAsString();
+      var items = jsonDecode(json) as List<dynamic>;
+      var titles = items.cast<String>();
+      return titles;
+    } catch(e) {
+      return [];
+    }
+  }
+
+  static Future<List<String>> loadAutocompleteTitles() async {
+    if(_autocompleteTitles != null)
+      return _autocompleteTitles!;
+    _autocompleteTitlesFuture ??= _loadAutocompleteTitles();
+    return _autocompleteTitlesFuture!;
   }
 }

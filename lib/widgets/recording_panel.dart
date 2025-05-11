@@ -50,6 +50,7 @@ class _RecordingPanelState extends State<RecordingPanel> {
     var marks = (MarkManager.notifier.value ?? []).where((mark) => mark.startAt.microsecondsSinceEpoch >= rec.startedAt.microsecondsSinceEpoch).toList();
     var savedRec = await RecordingManager.add(rec, title ?? '', marks).showErrorToUser(context);
     await widget.device.deleteRecording().showErrorToUser(context);
+    await MarkManager.deleteMarksFile();
     Navigator.push<void>(
       context,
       MaterialPageRoute(builder: (context) => RecordingPage(file: savedRec))
@@ -63,17 +64,19 @@ class _RecordingPanelState extends State<RecordingPanel> {
 
   Future<void> createMark(bool expectingEnd) async {
     var mark = Mark(expectingEnd: expectingEnd);
+    var suggestions = await MarkManager.loadAutocompleteTitles();
     var title = await showSaveDialog(
       context: context,
       title: expectingEnd ? 'Name this interval' : 'Name this mark',
-      suggestions: MarkManager.titlesForAutocomplete()
+      suggestions: suggestions
     );
     if(title == null)
       return;
     if(title.isEmpty)
       title = 'N/A';
     mark.title = title;
-    await MarkManager.save(mark).showErrorToUser(context);
+    var recStatus = await widget.device.refreshRecordingStatus();
+    await MarkManager.addMark(mark, recStatus).showErrorToUser(context);
   }
 
   @override
@@ -181,7 +184,8 @@ class _RecordingPanelState extends State<RecordingPanel> {
                       child: IconButton(
                         onPressed: () async {
                           lastMark.endAt = DateTime.now();
-                          await MarkManager.save(lastMark).showErrorToUser(context);
+                          var recStatus = await widget.device.refreshRecordingStatus();
+                          await MarkManager.addMark(lastMark, recStatus).showErrorToUser(context);
                         },
                         icon: const Icon(Icons.vertical_align_top),
                       )
