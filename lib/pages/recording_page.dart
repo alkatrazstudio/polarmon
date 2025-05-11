@@ -56,10 +56,11 @@ class _RecordingPageState extends State<RecordingPage> {
   Widget menu(BuildContext context) {
     return MainMenu(items: [
       MainMenuItem('Rename', Icons.drive_file_rename_outline, () async {
+        var suggestions = await RecordingManager.autocompleteTitles.load();
         var newTitle = await showSaveDialog(
           context: context,
           title: 'Name for this recording',
-          suggestions: RecordingManager.titlesForAutocomplete(),
+          suggestions: suggestions,
           initialText: await title()
         );
         if(newTitle == null)
@@ -71,7 +72,7 @@ class _RecordingPageState extends State<RecordingPage> {
       }),
       MainMenuItem('Delete', Icons.delete, () async {
         var fmt = DateFormat.yMMMd().add_Hms();
-        var text = 'Delete this recording:\n\n$title\n\nStart: ${fmt.format(file.startTime)}\nEnd: ${fmt.format(file.endTime)}';
+        var text = 'Delete this recording:\n\n${await title()}\n\nStart: ${fmt.format(file.startTime)}\nEnd: ${fmt.format(file.endTime)}';
         if(!await showConfirmDialog(context: context, text: text))
           return;
         await RecordingManager.delete(file).showErrorToUser(context);

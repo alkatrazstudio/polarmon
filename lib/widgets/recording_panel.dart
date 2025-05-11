@@ -42,10 +42,11 @@ class _RecordingPanelState extends State<RecordingPanel> {
     var rec = await widget.device.getRecording();
     if(rec == null)
       throw Exception('Cannot fetch the recording or it\'s too short.');
+    var suggestions = await RecordingManager.autocompleteTitles.load();
     var title = await showSaveDialog(
       context: context,
       title: 'Name for this recording',
-      suggestions: RecordingManager.titlesForAutocomplete()
+      suggestions: suggestions
     );
     var marks = (MarkManager.notifier.value ?? []).where((mark) => mark.startAt.microsecondsSinceEpoch >= rec.startedAt.microsecondsSinceEpoch).toList();
     var savedRec = await RecordingManager.add(rec, title ?? '', marks).showErrorToUser(context);
@@ -64,7 +65,7 @@ class _RecordingPanelState extends State<RecordingPanel> {
 
   Future<void> createMark(bool expectingEnd) async {
     var mark = Mark(expectingEnd: expectingEnd);
-    var suggestions = await MarkManager.loadAutocompleteTitles();
+    var suggestions = await MarkManager.autocompleteTitles.load();
     var title = await showSaveDialog(
       context: context,
       title: expectingEnd ? 'Name this interval' : 'Name this mark',

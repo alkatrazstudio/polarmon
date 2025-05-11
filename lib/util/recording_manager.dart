@@ -9,6 +9,7 @@ import 'package:collection/collection.dart';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart' as p;
 
+import '../util/autocomplete_store.dart';
 import '../util/device.dart';
 import '../util/file_util.dart';
 import '../util/mark_manager.dart';
@@ -206,9 +207,15 @@ class RecordingFile {
 
 abstract class RecordingManager {
   static final notifier = ValueNotifier<List<RecordingFile>>([]);
+  static var autocompleteTitles = AutocompleteStore('recordings_autocomplete_titles.json');
 
   static Future<File> listFile() async {
     var file = FileUtil.file('recordings/recordings.json');
+    return file;
+  }
+
+  static Future<File> autocompleteTitlesFile() async {
+    var file = FileUtil.file('recordings_autocomplete_titles.json');
     return file;
   }
 
@@ -260,6 +267,25 @@ abstract class RecordingManager {
     }
   }
 
+  static Future<void> migrateAutocompleteTitles(List<RecordingFile> files) async {
+    if(files.isEmpty)
+      return;
+    var file = await autocompleteTitles.file();
+    if(await file.exists())
+      return;
+    var titles = <String>[];
+    for(var file in files.sortedBy((f) => f.startTime).reversed) {
+      try {
+        var meta = await file.loadMeta();
+        if(meta.title.isNotEmpty)
+          titles.add(meta.title);
+      } catch(e) {
+        //
+      }
+    }
+    autocompleteTitles.save(titles);
+  }
+
   static Future<void> loadList() async {
     await migrateSamples();
     await migrateMeta();
@@ -275,6 +301,8 @@ abstract class RecordingManager {
     }
     files.sortBy((f) => f.startTime);
     notifier.value = files;
+
+    await migrateAutocompleteTitles(files);
   }
 
   static Future<RecordingFile> add(DeviceRecording rec, String title, List<Mark> marks) async {
@@ -289,6 +317,7 @@ abstract class RecordingManager {
     await file.saveSamples(rec.samples);
     await file.saveMeta(meta);
     notifier.value = [...notifier.value, file];
+    await autocompleteTitles.add(title);
     return file;
   }
 
@@ -317,17 +346,5 @@ abstract class RecordingManager {
     files[fileIndex] = newFile;
     notifier.value = files;
     return newFile;
-  }
-
-  static List<String> titlesForAutocomplete() {
-    var suggestions = notifier
-      .value
-      .sortedBy((rec) => rec.startTime)
-      .reversed
-      .map((rec) => rec.fileTitle) // TODO: get real title
-      .where((title) => title.isNotEmpty)
-      .toSet()
-      .toList();
-    return suggestions;
   }
 }
