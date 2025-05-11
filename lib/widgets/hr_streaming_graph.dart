@@ -6,14 +6,19 @@ import 'package:flutter/material.dart';
 
 import 'package:fl_chart/fl_chart.dart';
 
+import '../util/device.dart';
 import '../util/mark_manager.dart';
 import '../util/settings.dart';
 import '../widgets/graph.dart';
 
 class HrStreamingGraph extends StatefulWidget {
-  const HrStreamingGraph({required this.hrStream});
+  const HrStreamingGraph({
+    required this.hrStream,
+    required this.recordingStatus
+  });
 
   final Stream<int>? hrStream;
+  final ValueNotifier<DeviceRecordingStatus?> recordingStatus;
 
   @override
   State<HrStreamingGraph> createState() => _HrStreamingGraphState();
@@ -49,6 +54,7 @@ class _HrStreamingGraphState extends State<HrStreamingGraph> {
           builder: (context, settings, child) {
             var minVal = settings.hrCustomEnable ? settings.hrCustomMin : minHr;
             var maxVal = settings.hrCustomEnable ? settings.hrCustomMax : maxHr;
+            var recordingStartedAt = widget.recordingStatus.value?.startedAt;
             if(points.length < 2)
               return Graph(
                 key: const ValueKey('hr-graph-dummy'),
@@ -59,6 +65,7 @@ class _HrStreamingGraphState extends State<HrStreamingGraph> {
                 maxTS: maxTS,
                 offsetFromEnd: true,
                 clipX: false,
+                recordingStartedAt: recordingStartedAt,
                 customRangeIsUsed: settings.hrCustomEnable
               );
             return Graph(
@@ -71,6 +78,7 @@ class _HrStreamingGraphState extends State<HrStreamingGraph> {
               offsetFromEnd: true,
               clipX: false,
               marks: MarkManager.notifier.value ?? [],
+              recordingStartedAt: recordingStartedAt,
               customRangeIsUsed: settings.hrCustomEnable
             );
           }

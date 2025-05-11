@@ -22,6 +22,7 @@ class Graph extends StatefulWidget {
     required this.offsetFromEnd,
     this.clipX = false,
     this.marks = const [],
+    this.recordingStartedAt,
     this.unit = '',
     this.showValLimits = true,
     this.customRangeIsUsed
@@ -43,6 +44,7 @@ class Graph extends StatefulWidget {
   final bool offsetFromEnd;
   final bool clipX;
   final List<Mark> marks;
+  final DateTime? recordingStartedAt;
   final String unit;
   final double yGridInterval;
   final bool showValLimits;
@@ -124,23 +126,31 @@ class _GraphState extends State<Graph> {
           ).toList()
         ),
         extraLinesData: ExtraLinesData(
-          verticalLines: widget.marks.map(
-            (mark) => VerticalLine(
-              x: mark.startAt.microsecondsSinceEpoch.toDouble(),
-              color: Colors.blue,
-              strokeWidth: 1,
-              label: VerticalLineLabel(
-                alignment: markLabelAlignment(mark),
-                show: true,
-                style: const TextStyle(
-                  color: Colors.blue,
-                  fontSize: 16,
-                  backgroundColor: Colors.black,
-                ),
-                labelResolver: (line) => '\u{00A0}${mark.title}\u{00A0}',
+          verticalLines: [
+            ...widget.marks.map(
+              (mark) => VerticalLine(
+                x: mark.startAt.microsecondsSinceEpoch.toDouble(),
+                color: Colors.blue,
+                strokeWidth: 1,
+                label: VerticalLineLabel(
+                  alignment: markLabelAlignment(mark),
+                  show: true,
+                  style: const TextStyle(
+                    color: Colors.blue,
+                    fontSize: 16,
+                    backgroundColor: Colors.black,
+                  ),
+                  labelResolver: (line) => '\u{00A0}${mark.title}\u{00A0}',
+                )
               )
-            )
-          ).toList()
+            ),
+            if(widget.recordingStartedAt != null)
+              VerticalLine(
+                x: widget.recordingStartedAt!.microsecondsSinceEpoch.toDouble(),
+                color: Colors.red,
+                strokeWidth: 1,
+              )
+          ]
         ),
         clipData: widget.clipX ? const FlClipData.all() : const FlClipData.vertical(),
         lineTouchData: LineTouchData(

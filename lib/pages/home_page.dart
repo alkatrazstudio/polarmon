@@ -208,12 +208,13 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
             ),
-            if(hrStream != null)
+            if(hrStream != null && device != null)
               Visibility(
                 visible: graphType == GraphType.hr,
                 maintainState: true,
                 child: HrStreamingGraph(
-                  hrStream: hrStream
+                  hrStream: hrStream,
+                  recordingStatus: device!.recordingStatus,
                 )
               ),
             if(ecgStream != null && graphType == GraphType.ecg)
