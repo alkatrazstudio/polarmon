@@ -346,4 +346,12 @@ abstract class RecordingManager {
     notifier.value = files;
     return newFile;
   }
+
+  static List<RecordingFile> filter(List<RecordingFile> files, String search) {
+    search = search.trim().toUpperCase();
+    if(search.isEmpty)
+      return files;
+    var filteredFiles = files.where((f) => f.timeString.toUpperCase().contains(search) || f.fileTitle.toUpperCase().contains(search)).toList();
+    return filteredFiles;
+  }
 }

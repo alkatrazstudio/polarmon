@@ -27,10 +27,7 @@ class _FilesSelectorState extends State<FilesSelector> {
   @override
   Widget build(context) {
     var curFiles = RecordingManager.notifier.value;
-    var actualSearch = search.trim().toUpperCase();
-    var allFiles = actualSearch.isEmpty
-      ? widget.allFiles
-      : widget.allFiles.where((f) => f.timeString.toUpperCase().contains(actualSearch) || f.fileTitle.toUpperCase().contains(actualSearch)).toList();
+    var allFiles = RecordingManager.filter(widget.allFiles, search);
     return Column(
       children: [
         SearchField(

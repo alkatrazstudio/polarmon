@@ -20,7 +20,6 @@ class SearchFieldState extends State<SearchField> {
   Widget build(context) {
     return TextField(
       onChanged: (text) {
-        text = text.trim().toLowerCase();
         widget.onChanged(text);
       },
       controller: controller,
