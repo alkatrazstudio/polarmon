@@ -61,6 +61,9 @@ class _GraphState extends State<Graph> {
   double initWinMaxTS = 0;
   bool follow = true;
 
+  static final timeFormatWithSeconds = DateFormat.jms();
+  static final timeFormatWithoutSeconds = DateFormat.jm();
+
   @override
   void initState() {
     super.initState();
@@ -68,9 +71,10 @@ class _GraphState extends State<Graph> {
     winMaxTS = widget.maxTS;
   }
 
-  String topLabel(double x) {
+  String topLabel(double x, bool withSeconds) {
     var ts = x.round();
-    var label = DateFormat.Hms().format(DateTime.fromMicrosecondsSinceEpoch(ts));
+    var timeFormat = withSeconds ? timeFormatWithSeconds : timeFormatWithoutSeconds;
+    var label = timeFormat.format(DateTime.fromMicrosecondsSinceEpoch(ts));
     return label;
   }
 
@@ -158,7 +162,7 @@ class _GraphState extends State<Graph> {
             fitInsideHorizontally: true,
             getTooltipItems: (spots) {
               var spot = spots.first;
-              var label1 = topLabel(spot.x);
+              var label1 = topLabel(spot.x, true);
               var label2 = bottomLabel(spot.x);
               var val = spot.y.round();
               var valWithUnit = widget.unit.isNotEmpty ? '$val ${widget.unit}' : '$val';
@@ -210,7 +214,7 @@ class _GraphState extends State<Graph> {
               interval: xGridInterval,
               reservedSize: 50,
               getTitlesWidget: (value, meta) {
-                var label = topLabel(value);
+                var label = topLabel(value, false);
                 if(meta.axisPosition == 0)
                   return FractionalTranslation(
                     translation: const Offset(0.5, 0),

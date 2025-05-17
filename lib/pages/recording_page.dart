@@ -29,6 +29,10 @@ class RecordingPage extends StatefulWidget {
 class _RecordingPageState extends State<RecordingPage> {
   late RecordingFile file;
 
+  static final dateFormat = DateFormat.yMMMMd();
+  static final timeFormat = DateFormat.jm();
+  static final dateFormatForDelete = DateFormat.yMMMd().add_jms();
+
   @override
   void initState() {
     super.initState();
@@ -71,8 +75,7 @@ class _RecordingPageState extends State<RecordingPage> {
         });
       }),
       MainMenuItem('Delete', Icons.delete, () async {
-        var fmt = DateFormat.yMMMd().add_Hms();
-        var text = 'Delete this recording:\n\n${await title()}\n\nStart: ${fmt.format(file.startTime)}\nEnd: ${fmt.format(file.endTime)}';
+        var text = 'Delete this recording:\n\n${await title()}\n\nStart: ${dateFormatForDelete.format(file.startTime)}\nEnd: ${dateFormatForDelete.format(file.endTime)}';
         if(!await showConfirmDialog(context: context, text: text))
           return;
         await RecordingManager.delete(file).showErrorToUser(context);
@@ -128,8 +131,9 @@ class _RecordingPageState extends State<RecordingPage> {
                           icon: const Icon(Icons.skip_previous)
                         ),
                         Text(
-                          file.timeString,
+                          '${dateFormat.format(file.startTime)}\n${timeFormat.format(file.startTime)} - ${timeFormat.format(file.endTime)}',
                           style: Theme.of(context).textTheme.headlineSmall,
+                          textAlign: TextAlign.center,
                         ),
                         IconButton(
                           onPressed: index >= (recs.length - 1) ? null : () {

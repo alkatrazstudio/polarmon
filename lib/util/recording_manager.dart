@@ -75,6 +75,10 @@ class RecordingFile {
   static const maxCleanTitleByteLen = 64;
   static final forbiddenNameCharsRx = RegExp(r'''[^\p{Letter}\p{Number}'"\$\-_,\(\)\[\]\{\}<>@!\?\|:_ ]''', unicode: true);
   static const baseDirName = 'recordings';
+  static final dateFormatWithYear = DateFormat.yMMMd();
+  static final dateFormatWithoutYear = DateFormat().add_MMMd();
+  static final timeFormat = DateFormat().add_jm();
+  static final rxSpaces = RegExp(r'\s');
 
   String get id => '${TimeUtil.timeToStr(startTime)}_${TimeUtil.timeToStr(endTime)}';
 
@@ -86,11 +90,13 @@ class RecordingFile {
 
   String get timeString {
     var diff = DateTime.now().difference(startTime);
-    var startFormat = diff.inDays > 30 * 10 ? DateFormat.yMMMd() : DateFormat().add_MMMd();
-    var startDateStr = startFormat.format(startTime);
-    var startTimeStr = DateFormat().add_Hm().format(startTime);
-    var endTimeStr = DateFormat().add_Hm().format(endTime);
-    return '$startDateStr: $startTimeStr - $endTimeStr';
+    var hasYear = diff.inDays > 30 * 10;
+    var startDateFormat = hasYear ? dateFormatWithYear : dateFormatWithoutYear;
+    var startDateStr = startDateFormat.format(startTime);
+    var startTimeStr = timeFormat.format(startTime).toLowerCase().replaceAll(rxSpaces, '');
+    var endTimeStr = timeFormat.format(endTime).toLowerCase().replaceAll(rxSpaces, '');
+    var s = '$startDateStr:${hasYear ? '\n' : ' '}$startTimeStr - $endTimeStr';
+    return s;
   }
 
   static Future<String> baseDir() async {

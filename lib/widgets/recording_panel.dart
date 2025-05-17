@@ -38,6 +38,8 @@ class _RecordingPanelState extends State<RecordingPanel> {
   Future<void>? recFuture;
   Future<void>? delFuture;
 
+  static final dateFormatNotOngoing = DateFormat.yMMMd().addPattern('\n').add_jms();
+
   Future<void> saveRecording() async {
     var rec = await widget.device.getRecording();
     if(rec == null)
@@ -156,7 +158,7 @@ class _RecordingPanelState extends State<RecordingPanel> {
                     ),
                   if(!status.isOngoing && status.startedAt != null)
                     Text(
-                      DateFormat.yMMMd().addPattern('\n').add_Hms().format(status.startedAt!),
+                      dateFormatNotOngoing.format(status.startedAt!),
                       textAlign: TextAlign.center,
                     ),
                 ],
