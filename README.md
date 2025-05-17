@@ -32,10 +32,11 @@ and displays some data from its sensors with the ability to save the fetched dat
 ## Features
 
 * Show heart rate (HR) in real time with the resolution of 1 sample per second.
-* Show electrocardiogram (ECG) in real time with the resolution of 130 samples per second. 
+* Show electrocardiogram (ECG) in real time with the resolution of 130 samples per second.
 * Record HR graph in background (the app may be closed meanwhile).
 * Manage and analyze the saved recordings.
 * Place markers on the graph during recording.
+* Export/import the recordings (to/from the internal JSON format).
 
 
 ## Limitations
@@ -43,7 +44,6 @@ and displays some data from its sensors with the ability to save the fetched dat
 * Only connects to the first device it finds.
 * Can only place markers at a current time.
 * Cannot edit or remove markers once they have been placed.
-* Cannot export any data.
 
 The above limitations may or may not be resolved in the future.
 

@@ -94,3 +94,9 @@ Future<bool> showConfirmDialog({
   );
   return result ?? false;
 }
+
+void showPopupMsg(BuildContext context, String text) {
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    content: Text(text)
+  ));
+}

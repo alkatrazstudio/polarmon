@@ -3,11 +3,10 @@
 import 'package:flutter/material.dart';
 
 import '../pages/help_page.dart';
-import '../pages/recording_page.dart';
 import '../pages/settings_page.dart';
 import '../util/device.dart';
 import '../util/future_util.dart';
-import '../util/recording_manager.dart';
+import '../widgets/app_drawer.dart';
 import '../widgets/ecg_streaming_graph.dart';
 import '../widgets/hr_display.dart';
 import '../widgets/hr_streaming_graph.dart';
@@ -147,8 +146,8 @@ class _HomePageState extends State<HomePage> {
           ),
           PopupMenuItem(
             child: const ListTile(
-                leading: Icon(Icons.help),
-                title: Text('Help')
+              leading: Icon(Icons.help),
+              title: Text('Help')
             ),
             onTap: () {
               openHelpPage(context);
@@ -203,7 +202,7 @@ class _HomePageState extends State<HomePage> {
                   const Spacer(),
                   if(device != null)
                     HrDisplay(
-                        hrStream: hrStream
+                      hrStream: hrStream
                     )
                 ],
               ),
@@ -251,34 +250,7 @@ class _HomePageState extends State<HomePage> {
         )
       ),
 
-      drawer: Drawer(
-        child: Builder(
-          builder: (context) {
-            return ValueListenableBuilder(
-              valueListenable: RecordingManager.notifier,
-              builder: (context, items, child) {
-                return ListView(
-                  children: items.reversed.map((item) => ListTile(
-                    title: Text(item.timeString),
-                    subtitle: item.fileTitle.isEmpty ? null : Text(
-                      item.fileTitle,
-                      style: const TextStyle(
-                        fontStyle: FontStyle.italic
-                      )
-                    ),
-                    onTap: () {
-                      Navigator.push<void>(
-                        context,
-                        MaterialPageRoute(builder: (context) => RecordingPage(file: item))
-                      );
-                    },
-                  )).toList(),
-                );
-              },
-            );
-          },
-        ),
-      ),
+      drawer: const AppDrawer(),
     );
   }
 }

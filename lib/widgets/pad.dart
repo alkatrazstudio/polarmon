@@ -17,3 +17,20 @@ abstract class Pad {
   static SizedBox get horizontalSpace => const SizedBox(width: pad);
   static SizedBox get verticalSpace => const SizedBox(height: pad);
 }
+
+extension PadAround on Widget {
+  Padding pad(EdgeInsets padding) {
+    return Padding(
+      padding: padding,
+      child: this,
+    );
+  }
+
+  Padding get padAll => pad(Pad.all);
+  Padding get padHorizontal => pad(Pad.horizontal);
+  Padding get padVertical => pad(Pad.vertical);
+  Padding get padLeft => pad(Pad.left);
+  Padding get padRight => pad(Pad.right);
+  Padding get padTop => pad(Pad.top);
+  Padding get padBottom => pad(Pad.bottom);
+}

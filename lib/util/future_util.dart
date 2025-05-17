@@ -2,13 +2,13 @@
 
 import 'package:flutter/material.dart';
 
+import '../widgets/dialogs.dart';
+
 T Function(dynamic error, dynamic stackTrace) _showErrorToUserFunc<T>(BuildContext context) => (error, stackTrace) {
   if(error == null)
     throw Exception('Unknown error');
   var msg = error.toString();
-  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-    content: Text(msg)
-  ));
+  showPopupMsg(context, msg);
   throw error;
 };
 

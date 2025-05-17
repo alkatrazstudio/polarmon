@@ -179,7 +179,7 @@ class RecordingFile {
     );
   }
 
-  static Future<RecordingFile> fromMetaAndSamples(RecordingMeta meta, List<int>? samples) async {
+  static RecordingFile fromMetaAndSamples(RecordingMeta meta, List<int>? samples) {
     var fileTitle = meta.title.replaceAll(forbiddenNameCharsRx, '').trim();
     while(utf8.encode(fileTitle).lengthInBytes > maxCleanTitleByteLen)
       fileTitle = fileTitle.substring(0, fileTitle.length - 1);
@@ -193,15 +193,9 @@ class RecordingFile {
     );
   }
 
-  RecordingFile clone() {
-    var file = RecordingFile(
-      startTime: startTime,
-      endTime: endTime,
-      fileTitle: fileTitle,
-    );
-    file._meta = _meta;
-    file._samples = _samples;
-    return file;
+  Future<void> resave() async {
+    await saveMeta(_meta!);
+    await saveSamples(_samples!);
   }
 }
 
@@ -254,7 +248,7 @@ abstract class RecordingManager {
     for(var jsonItem in jsonItems) {
       try {
         var meta = RecordingMeta.fromJson(jsonItem as Map<String, dynamic>);
-        var file = await RecordingFile.fromMetaAndSamples(meta, null);
+        var file = RecordingFile.fromMetaAndSamples(meta, null);
         await file.saveMeta(meta);
       } catch(e) {
         //
@@ -313,9 +307,8 @@ abstract class RecordingManager {
       endTime: endTime,
       marks: marks
     );
-    var file = await RecordingFile.fromMetaAndSamples(meta, rec.samples);
-    await file.saveSamples(rec.samples);
-    await file.saveMeta(meta);
+    var file = RecordingFile.fromMetaAndSamples(meta, rec.samples);
+    await file.resave();
     notifier.value = [...notifier.value, file];
     await autocompleteTitles.add(title);
     return file;
@@ -340,7 +333,7 @@ abstract class RecordingManager {
     var oldFile = files[fileIndex];
     var meta = await oldFile.loadMeta();
     meta.title = newTitle;
-    var newFile = await RecordingFile.fromMetaAndSamples(meta, null);
+    var newFile = RecordingFile.fromMetaAndSamples(meta, null);
     await newFile.saveMeta(meta);
     await oldFile.deleteMeta();
     files[fileIndex] = newFile;
