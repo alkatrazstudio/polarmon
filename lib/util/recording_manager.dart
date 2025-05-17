@@ -207,7 +207,7 @@ class RecordingFile {
 
 abstract class RecordingManager {
   static final notifier = ValueNotifier<List<RecordingFile>>([]);
-  static var autocompleteTitles = AutocompleteStore('recordings_autocomplete_titles.json');
+  static final autocompleteTitles = AutocompleteStore('recordings_autocomplete_titles.json');
 
   static Future<File> listFile() async {
     var file = FileUtil.file('recordings/recordings.json');

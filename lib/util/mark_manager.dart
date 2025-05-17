@@ -52,7 +52,7 @@ class Mark {
 
 abstract class MarkManager {
   static final notifier = ValueNotifier<List<Mark>?>(null);
-  static var autocompleteTitles = AutocompleteStore('marks_autocomplete_titles.json');
+  static final autocompleteTitles = AutocompleteStore('marks_autocomplete_titles.json');
 
   static Future<File> listFile() async {
     var file = FileUtil.file('marks.json');

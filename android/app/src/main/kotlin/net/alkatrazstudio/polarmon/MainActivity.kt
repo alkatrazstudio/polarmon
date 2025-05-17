@@ -27,29 +27,29 @@ class MainActivity: FlutterActivity() {
         super.configureFlutterEngine(flutterEngine)
 
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler {
-                call, result -> try {
-            val args = call.arguments<HashMap<String, Any>>()
-            if(args == null) {
-                result.error("args", "arguments are null", null)
-            } else {
-                when (call.method) {
-                    "saveFile" -> saveFile(
-                        args["initialFilename"] as String,
-                        args["mime"] as String,
-                        args["bytes"] as ByteArray,
-                        result
-                    )
-                    "loadFile" -> loadFile(
-                        args["mime"] as String,
-                        result
-                    )
-                    else -> result.notImplemented()
+            call, result -> try {
+                val args = call.arguments<HashMap<String, Any>>()
+                if(args == null) {
+                    result.error("args", "arguments are null", null)
+                } else {
+                    when (call.method) {
+                        "saveFile" -> saveFile(
+                            args["initialFilename"] as String,
+                            args["mime"] as String,
+                            args["bytes"] as ByteArray,
+                            result
+                        )
+                        "loadFile" -> loadFile(
+                            args["mime"] as String,
+                            result
+                        )
+                        else -> result.notImplemented()
+                    }
                 }
+            } catch(e: Throwable) {
+                Log.wtf("MethodChannel", "${call.method} error [${e.javaClass.name}]: ${e.message}", e)
+                result.error(e.javaClass.name, e.message, stackTraceFromException(e))
             }
-        } catch(e: Throwable) {
-            Log.wtf("MethodChannel", "${call.method} error [${e.javaClass.name}]: ${e.message}", e)
-            result.error(e.javaClass.name, e.message, stackTraceFromException(e))
-        }
         }
     }
 

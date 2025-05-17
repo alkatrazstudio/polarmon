@@ -2,9 +2,9 @@
 
 import 'dart:convert';
 
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
+import 'package:collection/collection.dart';
 import 'package:intl/intl.dart';
 
 import '../util/files_selector.dart';
@@ -78,7 +78,7 @@ class _ImportPageState extends State<ImportPage> {
   Widget build(context) {
     return Scaffold(
       appBar: AppBar(
-          title: Text('Import')
+        title: Text('Import')
       ),
       body: Column(
         children: [
@@ -96,18 +96,18 @@ class _ImportPageState extends State<ImportPage> {
             ),
           ),
           FutureBuilder(
-              future: importFuture,
-              builder: (context, snapshot) {
-                var isRunning = importFuture != null && snapshot.connectionState != ConnectionState.done;
-                return ElevatedButton(
-                    onPressed: isRunning || selectedFiles.isEmpty ? null : () {
-                      setState(() {
-                        importFuture = import();
-                      });
-                    },
-                    child: isRunning ? const CircularProgressIndicator() : const Text('Import')
-                );
-              }
+            future: importFuture,
+            builder: (context, snapshot) {
+              var isRunning = importFuture != null && snapshot.connectionState != ConnectionState.done;
+              return ElevatedButton(
+                onPressed: isRunning || selectedFiles.isEmpty ? null : () {
+                  setState(() {
+                    importFuture = import();
+                  });
+                },
+                child: isRunning ? const CircularProgressIndicator() : const Text('Import')
+              );
+            }
           ),
         ],
       ),

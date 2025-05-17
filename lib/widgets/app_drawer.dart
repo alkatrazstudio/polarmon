@@ -6,8 +6,8 @@ import '../pages/export_page.dart';
 import '../pages/import_page.dart';
 import '../pages/recording_page.dart';
 import '../util/recording_manager.dart';
-import '../widgets/search_field.dart';
 import '../widgets/dialogs.dart';
+import '../widgets/search_field.dart';
 
 class AppDrawer extends StatefulWidget {
   const AppDrawer();

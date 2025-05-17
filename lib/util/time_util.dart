@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 abstract class TimeUtil {
   static final dateFormat = DateFormat('yyyyMMddHHmmss');
   static final timestampParser = RegExp(r'^(?<y>\d\d\d\d)(?<M>\d\d)(?<d>\d\d)(?<h>\d\d)(?<m>\d\d)(?<s>\d\d)$'); // DateFormat.parse does not work
-  
+
   static timeToStr(DateTime date) {
     var dateStr = dateFormat.format(date.toUtc());
     return dateStr;
@@ -16,12 +16,12 @@ abstract class TimeUtil {
     if(match == null)
       return null;
     var timestamp = DateTime.utc(
-        int.parse(match.namedGroup('y')!),
-        int.parse(match.namedGroup('M')!),
-        int.parse(match.namedGroup('d')!),
-        int.parse(match.namedGroup('h')!),
-        int.parse(match.namedGroup('m')!),
-        int.parse(match.namedGroup('s')!)
+      int.parse(match.namedGroup('y')!),
+      int.parse(match.namedGroup('M')!),
+      int.parse(match.namedGroup('d')!),
+      int.parse(match.namedGroup('h')!),
+      int.parse(match.namedGroup('m')!),
+      int.parse(match.namedGroup('s')!)
     );
     return timestamp;
   }

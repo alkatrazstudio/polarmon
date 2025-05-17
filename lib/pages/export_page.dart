@@ -3,12 +3,12 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:polarmon/widgets/dialogs.dart';
 
 import '../util/files_selector.dart';
 import '../util/import_data.dart';
 import '../util/recording_manager.dart';
 import '../util/storage.dart';
+import '../widgets/dialogs.dart';
 import '../widgets/pad.dart';
 
 class ExportPage extends StatefulWidget {
@@ -50,7 +50,7 @@ class _ExportPageState extends State<ExportPage> {
   Widget build(context) {
     return Scaffold(
       appBar: AppBar(
-          title: Text('Export')
+        title: Text('Export'),
       ),
       body: Column(
         children: [
