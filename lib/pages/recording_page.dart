@@ -94,7 +94,7 @@ class _RecordingPageState extends State<RecordingPage> {
           builder: (context, snapshot) {
             var data = snapshot.data;
             if(data == null)
-              return const CircularProgressIndicator();
+              return const Center(child: CircularProgressIndicator());
             var (meta, samples) = data;
 
             var minTS = file.startTime.microsecondsSinceEpoch;
