@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 
 import '../util/files_selector.dart';
 import '../util/import_data.dart';
+import '../util/locale_manager.dart';
 import '../util/recording_manager.dart';
 import '../util/storage.dart';
 import '../widgets/dialogs.dart';
@@ -39,10 +40,10 @@ class _ExportPageState extends State<ExportPage> {
       if(uri == null)
         return;
       Navigator.pop(context);
-      showPopupMsg(context, 'Export done!');
+      showPopupMsg(context, L(context).exportDone);
     } catch(e) {
       Navigator.pop(context);
-      showPopupMsg(context, 'Import failed: $e');
+      showPopupMsg(context, L(context).exportFailed(error: e.toString()));
     }
   }
 
@@ -50,11 +51,11 @@ class _ExportPageState extends State<ExportPage> {
   Widget build(context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Export'),
+        title: Text(L(context).exportTitle),
       ),
       body: Column(
         children: [
-          const Text('Select the recordings to export.').padHorizontal,
+          Text(L(context).exportListInstructions).padHorizontal,
           Expanded(
             child: FilesSelector(
               allFiles: allFiles,
@@ -76,7 +77,7 @@ class _ExportPageState extends State<ExportPage> {
                     exportFuture = export();
                   });
                 },
-                child: isRunning ? const CircularProgressIndicator() : const Text('Export')
+                child: isRunning ? const CircularProgressIndicator() : Text(L(context).exportActionBtn)
               );
             }
           ),

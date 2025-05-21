@@ -3,5 +3,6 @@
 !.metadata
 
 /build/
+/lib/l10n/generated/
 
 *.iml

@@ -11,6 +11,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
 
   polar: 7.6.0
   fl_chart: 0.71.0
@@ -32,3 +34,4 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  generate: true

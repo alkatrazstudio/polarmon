@@ -2,6 +2,8 @@
 
 import 'package:flutter/material.dart';
 
+import '../util/locale_manager.dart';
+
 class SearchField extends StatefulWidget {
   const SearchField({
     required this.onChanged
@@ -24,7 +26,7 @@ class SearchFieldState extends State<SearchField> {
       },
       controller: controller,
       decoration: InputDecoration(
-        hintText: 'Search...',
+        hintText: L(context).searchFieldHint,
         contentPadding: const EdgeInsets.all(10),
         suffixIcon: IconButton(
           onPressed: () {

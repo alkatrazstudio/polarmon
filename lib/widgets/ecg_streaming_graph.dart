@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 import '../util/device.dart';
+import '../util/locale_manager.dart';
 import '../util/settings.dart';
 import '../widgets/graph.dart';
 
@@ -66,7 +67,7 @@ class _EcgStreamingGraphState extends State<EcgStreamingGraph> {
               maxTS: maxTS,
               offsetFromEnd: true,
               clipX: true,
-              unit: 'µV',
+              unit: L(context).ecgStreamingGraphUnit,
               showValLimits: false,
             );
           }

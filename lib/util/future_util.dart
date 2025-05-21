@@ -2,11 +2,12 @@
 
 import 'package:flutter/material.dart';
 
+import '../util/locale_manager.dart';
 import '../widgets/dialogs.dart';
 
 T Function(dynamic error, dynamic stackTrace) _showErrorToUserFunc<T>(BuildContext context) => (error, stackTrace) {
   if(error == null)
-    throw Exception('Unknown error');
+    throw Exception(L(context).futureUtilUnknownError);
   var msg = error.toString();
   showPopupMsg(context, msg);
   throw error;

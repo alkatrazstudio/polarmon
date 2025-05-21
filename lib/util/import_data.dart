@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: MPL-2.0
 
+import 'package:flutter/material.dart';
+
+import '../util/locale_manager.dart';
 import '../util/recording_manager.dart';
 import '../util/time_util.dart';
 
@@ -64,10 +67,10 @@ class ImportData {
     );
   }
 
-  static ImportData fromJson(Map<String, dynamic> json) {
-    var version = json['version'] as int;
-    if(version > curVersion)
-      throw Exception('File version $version is bigger than maximum supported version $curVersion.');
+  static ImportData fromJson(Map<String, dynamic> json, BuildContext context) {
+    var fileVersion = json['version'] as int;
+    if(fileVersion > curVersion)
+      throw Exception(L(context).importDataVersionIsBigger(fileVersion: fileVersion, curVersion: curVersion));
 
     var records = <ImportRecord>[];
     for(var item in json['records'] as List<dynamic>) {
@@ -80,7 +83,7 @@ class ImportData {
     }
 
     return ImportData(
-      version: version,
+      version: fileVersion,
       createdAt: TimeUtil.strToTime(json['createdAt'])!,
       records: records
     );

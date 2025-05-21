@@ -6,6 +6,7 @@ import '../pages/help_page.dart';
 import '../pages/settings_page.dart';
 import '../util/device.dart';
 import '../util/future_util.dart';
+import '../util/locale_manager.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/ecg_streaming_graph.dart';
 import '../widgets/hr_display.dart';
@@ -89,7 +90,7 @@ class _HomePageState extends State<HomePage> {
           DeviceStatus.unknown || DeviceStatus.disconnected => [
             ElevatedButton(
               onPressed: () => startConnecting(),
-              child: const Text('Connect')
+              child: Text(L(context).homeConnectBtn)
             ),
             Pad.horizontalSpace
           ],
@@ -101,10 +102,10 @@ class _HomePageState extends State<HomePage> {
                   connectingFuture = null;
                 });
               },
-              child: const Text('Cancel')
+              child: Text(L(context).homeCancelBtn)
             ),
             Pad.horizontalSpace,
-            const Text('Connecting')
+            Text(L(context).homeStatusConnecting)
           ],
           DeviceStatus.connected => [
             ElevatedButton(
@@ -116,7 +117,7 @@ class _HomePageState extends State<HomePage> {
                   })).showErrorToUser(context);
                 });
               },
-              child: const Text('Disconnect')
+              child: Text(L(context).homeDisconnect)
             ),
             Pad.horizontalSpace
           ],
@@ -133,9 +134,9 @@ class _HomePageState extends State<HomePage> {
       itemBuilder: (context) {
         return [
           PopupMenuItem(
-            child: const ListTile(
-              leading: Icon(Icons.settings),
-              title: Text('Settings')
+            child: ListTile(
+              leading: const Icon(Icons.settings),
+              title: Text(L(context).homeMenuSettings)
             ),
             onTap: () {
               Navigator.push<void>(
@@ -145,9 +146,9 @@ class _HomePageState extends State<HomePage> {
             },
           ),
           PopupMenuItem(
-            child: const ListTile(
-              leading: Icon(Icons.help),
-              title: Text('Help')
+            child: ListTile(
+              leading: const Icon(Icons.help),
+              title: Text(L(context).homeMenuHelp)
             ),
             onTap: () {
               openHelpPage(context);
@@ -169,7 +170,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: device == null
-          ? const Text('[not connected]')
+          ? Text('[${L(context).homeTitleNotConnected}]')
           : Row(
             children: [
               StreamBuilder(
@@ -224,14 +225,14 @@ class _HomePageState extends State<HomePage> {
               Pad.verticalSpace,
             if(device != null)
               SegmentedButton(
-                segments: const [
+                segments: [
                   ButtonSegment(
                     value: GraphType.hr,
-                    label: Text('HR')
+                    label: Text(L(context).homeHR)
                   ),
                   ButtonSegment(
                     value: GraphType.ecg,
-                    label: Text('ECG')
+                    label: Text(L(context).homeECG)
                   )
                 ],
                 selected: {graphType},

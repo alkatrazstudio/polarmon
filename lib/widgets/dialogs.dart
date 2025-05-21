@@ -2,6 +2,8 @@
 
 import 'package:flutter/material.dart';
 
+import '../util/locale_manager.dart';
+
 Future<String?> showSaveDialog({
   required BuildContext context,
   required String title,
@@ -24,8 +26,8 @@ Future<String?> showSaveDialog({
                 autofocus: true,
                 controller: inputController,
                 textInputAction: TextInputAction.go,
-                decoration: const InputDecoration(
-                  hintText: '<unnamed>'
+                decoration: InputDecoration(
+                  hintText: '<${L(context).saveDialogUnnamed}>'
                 ),
                 onSubmitted: (text) {
                   Navigator.of(context).pop(text.trim());
@@ -46,8 +48,8 @@ Future<String?> showSaveDialog({
                     focusNode: focusNode,
                     controller: textEditingController,
                     textInputAction: TextInputAction.go,
-                    decoration: const InputDecoration(
-                      hintText: '<unnamed>'
+                    decoration: InputDecoration(
+                      hintText: '<${L(context).saveDialogUnnamed}>'
                     ),
                     onSubmitted: (text) {
                       Navigator.of(context).pop(text);
@@ -59,7 +61,7 @@ Future<String?> showSaveDialog({
         ),
         actions: [
           TextButton(
-            child: const Text('OK'),
+            child: Text(L(context).saveDialogOk),
             onPressed: () {
               Navigator.of(context).pop(inputController.text);
             }
@@ -81,11 +83,11 @@ Future<bool> showConfirmDialog({
         content: Text(text),
         actions: [
           TextButton(
-            child: const Text('No'),
+            child: Text(L(context).confirmDialogNo),
             onPressed: () => Navigator.of(context).pop(false)
           ),
           TextButton(
-            child: const Text('Yes'),
+            child: Text(L(context).confirmDialogYes),
             onPressed: () => Navigator.of(context).pop(true)
           )
         ]

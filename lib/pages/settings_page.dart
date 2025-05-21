@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 
+import '../util/locale_manager.dart';
 import '../util/settings.dart';
 import '../widgets/pad.dart';
 
@@ -77,9 +78,22 @@ class SettingsPageState extends State<StatefulWidget> {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    rangeFields('Custom HR range', 'hrCustomMin', settings.hrCustomMin, 'hrCustomMax', settings.hrCustomMax),
+                    rangeFields(L(context).settingsCustomHrRange, 'hrCustomMin', settings.hrCustomMin, 'hrCustomMax', settings.hrCustomMax),
                     const SizedBox(height: 50),
-                    rangeFields('ECG range, µV', 'ecgMin', settings.ecgMin, 'ecgMax', settings.ecgMax)
+                    rangeFields(L(context).settingsEcgRange, 'ecgMin', settings.ecgMin, 'ecgMax', settings.ecgMax),
+                    const SizedBox(height: 50),
+                    Text(
+                      L(context).settingsLanguage,
+                      style: Theme.of(context).textTheme.titleMedium
+                    ),
+                    FormBuilderDropdown<String>(
+                      name: 'locale',
+                      items: LocaleManager.dropdownItems.map((item) => DropdownMenuItem(
+                        value: item.code,
+                        child: Text(item.name),
+                      )).toList(),
+                      initialValue: settings.locale,
+                    )
                   ]
                 );
               }
@@ -99,6 +113,7 @@ class SettingsPageState extends State<StatefulWidget> {
           var settings = Settings.fromJson(val);
           await settings.save();
           Navigator.pop(context);
+          LocaleManager.applyFromSettings();
         },
       )
     );

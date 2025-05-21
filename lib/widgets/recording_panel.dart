@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 import '../pages/recording_page.dart';
 import '../util/device.dart';
 import '../util/future_util.dart';
+import '../util/locale_manager.dart';
 import '../util/mark_manager.dart';
 import '../util/recording_manager.dart';
 import '../util/time_util.dart';
@@ -16,38 +17,38 @@ import '../widgets/dialogs.dart';
 import '../widgets/pad.dart';
 
 class RecordingPanel extends StatefulWidget {
-  const RecordingPanel({
+  RecordingPanel({
     required this.device
   });
 
   final Device device;
 
+  final startDateTimeFormat = DateFormat.yMMMd().addPattern('\n').add_jms();
+
   @override
   State<RecordingPanel> createState() => _RecordingPanelState();
-}
-
-String durationStr(DateTime? startedAt) {
-  if(startedAt == null)
-    return 'N/A minutes';
-  var duration = DateTime.now().difference(startedAt);
-  var str = TimeUtil.durationToHumanStr(duration);
-  return str;
 }
 
 class _RecordingPanelState extends State<RecordingPanel> {
   Future<void>? recFuture;
   Future<void>? delFuture;
 
-  static final dateFormatNotOngoing = DateFormat.yMMMd().addPattern('\n').add_jms();
+  String? durationStr(DateTime? startedAt) {
+    if(startedAt == null)
+      return null;
+    var duration = DateTime.now().difference(startedAt);
+    var str = TimeUtil.durationToHumanStr(duration, context);
+    return str;
+  }
 
   Future<void> saveRecording() async {
     var rec = await widget.device.getRecording();
     if(rec == null)
-      throw Exception('Cannot fetch the recording or it\'s too short.');
+      throw Exception(L(context).recordingPanelCannotFetch);
     var suggestions = await RecordingManager.autocompleteTitles.load();
     var title = await showSaveDialog(
       context: context,
-      title: 'Name for this recording',
+      title: L(context).recordingPanelSaveRecordingTitle,
       suggestions: suggestions
     );
     var marks = (MarkManager.notifier.value ?? []).where((mark) => mark.startAt.microsecondsSinceEpoch >= rec.startedAt.microsecondsSinceEpoch).toList();
@@ -70,13 +71,13 @@ class _RecordingPanelState extends State<RecordingPanel> {
     var suggestions = await MarkManager.autocompleteTitles.load();
     var title = await showSaveDialog(
       context: context,
-      title: expectingEnd ? 'Name this interval' : 'Name this mark',
+      title: expectingEnd ? L(context).recordingPanelSaveIntervalTitle : L(context).recordingPanelSaveMarkTitle,
       suggestions: suggestions
     );
     if(title == null)
       return;
     if(title.isEmpty)
-      title = 'N/A';
+      title = L(context).recordingPanelNA;
     mark.title = title;
     var recStatus = await widget.device.refreshRecordingStatus();
     await MarkManager.addMark(mark, recStatus).showErrorToUser(context);
@@ -107,10 +108,13 @@ class _RecordingPanelState extends State<RecordingPanel> {
                         recFuture = newRecFuture;
                       });
                     },
+                    style: ElevatedButton.styleFrom(
+                      padding: Pad.horizontal
+                    ),
                     child: recFuture == null
-                      ? Text(status.isOngoing ? 'Stop' : (status.startedAt == null ? 'Start' : 'Save'))
+                      ? Text(status.isOngoing ? L(context).recordingPanelStop : (status.startedAt == null ? L(context).recordingPanelStart : L(context).recordingPanelSave))
                       : const CircularProgressIndicator()
-                  ),
+                  ).padLeft,
                   if(status.isOngoing || status.startedAt == null)
                     Icon(
                       Icons.fiber_manual_record_rounded,
@@ -120,7 +124,7 @@ class _RecordingPanelState extends State<RecordingPanel> {
                   if(!status.isOngoing && status.startedAt != null)
                     IconButton(
                       onPressed:() async {
-                        if(!await showConfirmDialog(context: context, text: 'Remove this recording?'))
+                        if(!await showConfirmDialog(context: context, text: L(context).recordingPanelRemoveQuestion))
                           return;
                         recFuture?.timeout(Duration.zero);
                         var newDelFuture = widget.device.deleteRecording()
@@ -149,7 +153,7 @@ class _RecordingPanelState extends State<RecordingPanel> {
                       stream: Stream.periodic(const Duration(seconds: 1)),
                       builder: (context, snapshot) {
                         return Text(
-                          durationStr(status.startedAt),
+                          durationStr(status.startedAt) ?? L(context).recordingPanelNaTime,
                           style: const TextStyle(
                             fontFamily: 'monospace'
                           )
@@ -158,7 +162,7 @@ class _RecordingPanelState extends State<RecordingPanel> {
                     ),
                   if(!status.isOngoing && status.startedAt != null)
                     Text(
-                      dateFormatNotOngoing.format(status.startedAt!),
+                      widget.startDateTimeFormat.format(status.startedAt!),
                       textAlign: TextAlign.center,
                     ),
                 ],

@@ -12,6 +12,7 @@ import 'package:path/path.dart' as p;
 import '../util/autocomplete_store.dart';
 import '../util/device.dart';
 import '../util/file_util.dart';
+import '../util/locale_manager.dart';
 import '../util/mark_manager.dart';
 import '../util/time_util.dart';
 
@@ -75,9 +76,6 @@ class RecordingFile {
   static const maxCleanTitleByteLen = 64;
   static final forbiddenNameCharsRx = RegExp(r'''[^\p{Letter}\p{Number}'"\$\-_,\(\)\[\]\{\}<>@!\?\|:_ ]''', unicode: true);
   static const baseDirName = 'recordings';
-  static final dateFormatWithYear = DateFormat.yMMMd();
-  static final dateFormatWithoutYear = DateFormat().add_MMMd();
-  static final timeFormat = DateFormat().add_jm();
   static final rxSpaces = RegExp(r'\s');
 
   String get id => '${TimeUtil.timeToStr(startTime)}_${TimeUtil.timeToStr(endTime)}';
@@ -91,8 +89,9 @@ class RecordingFile {
   String get timeString {
     var diff = DateTime.now().difference(startTime);
     var hasYear = diff.inDays > 30 * 10;
-    var startDateFormat = hasYear ? dateFormatWithYear : dateFormatWithoutYear;
+    var startDateFormat = hasYear ? DateFormat.yMMMd() : DateFormat().add_MMMd();
     var startDateStr = startDateFormat.format(startTime);
+    var timeFormat = DateFormat().add_jm();
     var startTimeStr = timeFormat.format(startTime).toLowerCase().replaceAll(rxSpaces, '');
     var endTimeStr = timeFormat.format(endTime).toLowerCase().replaceAll(rxSpaces, '');
     var s = '$startDateStr:${hasYear ? '\n' : ' '}$startTimeStr - $endTimeStr';
@@ -339,12 +338,12 @@ abstract class RecordingManager {
     notifier.value = files;
   }
 
-  static Future<RecordingFile> rename(RecordingFile recToRename, String newTitle) async {
+  static Future<RecordingFile> rename(RecordingFile recToRename, String newTitle, BuildContext context) async {
     await _loadFuture;
     var files = [...notifier.value];
     var fileIndex = files.indexWhere((rec) => rec.id == recToRename.id);
     if(fileIndex < 0)
-      throw Exception('No file found');
+      throw Exception(L(context).recordingManagerFileNotFound);
     var oldFile = files[fileIndex];
     var meta = await oldFile.loadMeta();
     meta.title = newTitle;

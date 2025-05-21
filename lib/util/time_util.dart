@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: MPL-2.0
 
+import 'package:flutter/material.dart';
+
 import 'package:intl/intl.dart';
+
+import '../util/locale_manager.dart';
 
 abstract class TimeUtil {
   static final dateFormat = DateFormat('yyyyMMddHHmmss');
@@ -37,16 +41,16 @@ abstract class TimeUtil {
     return '$hrs:${mins.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
   }
 
-  static String durationToHumanStr(Duration duration) {
+  static String durationToHumanStr(Duration duration, BuildContext context) {
     var secs = duration.inSeconds;
     if(secs < 60)
-      return '${secs}s';
+      return L(context).timeUtilS(secs: secs);
     var mins = (secs / 60).floor();
     secs = secs - mins * 60;
     if(mins < 60)
-      return '${mins}m ${secs.toString().padLeft(2, '0')}s';
+      return L(context).timeUtilMS(mins: mins, secs: secs.toString().padLeft(2, '0'));
     var hrs = (mins / 60).floor();
     mins = mins - hrs * 60;
-    return '${hrs}h ${mins.toString().padLeft(2, '0')}m ${secs.toString().padLeft(2, '0')}s';
+    return L(context).timeUtilHMS(hours: hrs, mins: mins.toString().padLeft(2, '0'), secs: secs.toString().padLeft(2, '0'));
   }
 }

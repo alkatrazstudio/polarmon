@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 
 import '../util/files_selector.dart';
 import '../util/import_data.dart';
+import '../util/locale_manager.dart';
 import '../util/recording_manager.dart';
 import '../util/storage.dart';
 import '../widgets/dialogs.dart';
@@ -24,13 +25,13 @@ class ImportPage extends StatefulWidget {
   @override
   State<ImportPage> createState() => _ImportPageState();
 
-  static Future<ImportData?> loadData() async {
+  static Future<ImportData?> loadData(BuildContext context) async {
     var bytes = await Storage.loadFile('application/json');
     if(bytes == null)
       return null;
     var json = utf8.decode(bytes);
     var jsonObj = jsonDecode(json) as Map<String, dynamic>;
-    var importData = ImportData.fromJson(jsonObj);
+    var importData = ImportData.fromJson(jsonObj, context);
     return importData;
   }
 }
@@ -62,14 +63,14 @@ class _ImportPageState extends State<ImportPage> {
       }
       Navigator.pop(context);
       if(failedFiles.isEmpty) {
-        showPopupMsg(context, 'Import done!');
+        showPopupMsg(context, L(context).importDone);
       } else {
         var failedNames = failedFiles.map((c) => c.fileTitle.isEmpty ? c.timeString : c.fileTitle).join(', ');
-        showPopupMsg(context, 'Import partially done. Could not import: $failedNames');
+        showPopupMsg(context, L(context).importPartiallyDone(names: failedNames));
       }
     } catch(e) {
       Navigator.pop(context);
-      showPopupMsg(context, 'Import failed: $e');
+      showPopupMsg(context, L(context).importFailed(error: e.toString()));
     }
     await RecordingManager.loadList();
   }
@@ -78,12 +79,12 @@ class _ImportPageState extends State<ImportPage> {
   Widget build(context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Import')
+        title: Text(L(context).importTitle)
       ),
       body: Column(
         children: [
-          Text('The file date is ${DateFormat.yMMMd().format(widget.importData.createdAt)}, ${DateFormat.jm().format(widget.importData.createdAt)}.'),
-          const Text('Select the recordings to import.').padHorizontal,
+          Text(L(context).importFileDate(createdAt: '${DateFormat.yMMMd().format(widget.importData.createdAt)}, ${DateFormat.jm().format(widget.importData.createdAt)}')),
+          Text(L(context).importListInstructions).padHorizontal,
           Expanded(
             child: FilesSelector(
               allFiles: allFiles,
@@ -105,7 +106,7 @@ class _ImportPageState extends State<ImportPage> {
                     importFuture = import();
                   });
                 },
-                child: isRunning ? const CircularProgressIndicator() : const Text('Import')
+                child: isRunning ? const CircularProgressIndicator() : Text(L(context).importActionBtn)
               );
             }
           ),

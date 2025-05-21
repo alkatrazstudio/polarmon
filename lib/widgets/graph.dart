@@ -35,6 +35,8 @@ class Graph extends StatefulWidget {
 
   static const xGridSteps = 4;
   static const yGridSteps = 4;
+  final timeFormatWithSeconds = DateFormat.jms();
+  final timeFormatWithoutSeconds = DateFormat.jm();
 
   final List<FlSpot> points;
   final double minVal;
@@ -61,9 +63,6 @@ class _GraphState extends State<Graph> {
   double initWinMaxTS = 0;
   bool follow = true;
 
-  static final timeFormatWithSeconds = DateFormat.jms();
-  static final timeFormatWithoutSeconds = DateFormat.jm();
-
   @override
   void initState() {
     super.initState();
@@ -73,7 +72,7 @@ class _GraphState extends State<Graph> {
 
   String topLabel(double x, bool withSeconds) {
     var ts = x.round();
-    var timeFormat = withSeconds ? timeFormatWithSeconds : timeFormatWithoutSeconds;
+    var timeFormat = withSeconds ? widget.timeFormatWithSeconds : widget.timeFormatWithoutSeconds;
     var label = timeFormat.format(DateTime.fromMicrosecondsSinceEpoch(ts));
     return label;
   }

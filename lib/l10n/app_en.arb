@@ -1,0 +1,134 @@
+{
+  "exportActionBtn": "Export",
+  "exportDone": "Export done",
+  "exportFailed": "Export failed: {error}",
+  "@exportFailed": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "exportListInstructions": "Select the recordings to export.",
+  "exportTitle": "Export",
+
+  "homeCancelBtn": "Cancel",
+  "homeConnectBtn": "Connect",
+  "homeDisconnect": "Disconnect",
+  "homeECG": "ECG",
+  "homeHR": "HR",
+  "homeMenuHelp": "Help",
+  "homeMenuSettings": "Settings",
+  "homeStatusConnecting": "Connecting...",
+  "homeTitleNotConnected": "not connected",
+
+  "importActionBtn": "Import",
+  "importDone": "Import done",
+  "importFailed": "Import failed: {error}",
+  "@importFailed": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "importFileDate": "The file is created at {createdAt}.",
+  "@importFileDate": {
+    "placeholders": {
+      "createdAt": {"type": "String"}
+    }
+  },
+  "importListInstructions": "Select the recordings to import.",
+  "importPartiallyDone": "Import partially done. Could not import: {names}",
+  "@importPartiallyDone": {
+    "placeholders": {
+      "names": {"type": "String"}
+    }
+  },
+  "importTitle": "Import",
+
+  "recordingDeleteEnd": "End: {endTime}",
+  "@recordingDeleteEnd": {
+    "placeholders": {
+      "endTime": {"type": "String"}
+    }
+  },
+  "recordingDeleteStart": "Start: {startTime}",
+  "@recordingDeleteStart": {
+    "placeholders": {
+      "startTime": {"type": "String"}
+    }
+  },
+  "recordingDeleteTitle": "Delete this recording:",
+  "recordingMenuRename": "Rename",
+  "recordingMenuDelete": "Delete",
+  "recordingRenameDialogTitle": "Name for this recording",
+
+  "recordingManagerFileNotFound": "File not found",
+
+  "settingsCustomHrRange": "Custom HR range",
+  "settingsEcgRange": "ECG range, µV",
+  "settingsLanguage": "Language",
+
+  "fileSelectorSelectAll": "select all",
+  "fileSelectorSelectNone": "select none",
+
+  "futureUtilUnknownError": "Unknown error",
+
+  "importDataVersionIsBigger": "File version {fileVersion} is bigger than maximum supported version {curVersion}.",
+  "@importDataVersionIsBigger": {
+    "placeholders": {
+      "fileVersion": {"type": "int"},
+      "curVersion": {"type": "int"}
+    }
+  },
+
+  "timeUtilHMS": "{hours}h {mins}m {secs}s",
+  "@timeUtilHMS": {
+    "placeholders": {
+      "hours": {"type": "int"},
+      "mins": {"type": "String"},
+      "secs": {"type": "String"}
+    }
+  },
+  "timeUtilMS": "{mins}m {secs}s",
+  "@timeUtilMS": {
+    "placeholders": {
+      "mins": {"type": "int"},
+      "secs": {"type": "String"}
+    }
+  },
+  "timeUtilS": "{secs}s",
+  "@timeUtilS": {
+    "placeholders": {
+      "secs": {"type": "int"}
+    }
+  },
+
+  "appDrawerExport": "Export",
+  "appDrawerImport": "Import",
+  "appDrawerImportFailed": "Import failed: {error}",
+  "@appDrawerImportFailed": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+
+  "confirmDialogNo": "No",
+  "confirmDialogYes": "Yes",
+  "saveDialogUnnamed": "unnamed",
+  "saveDialogOk": "OK",
+
+  "ecgStreamingGraphUnit": "µV",
+
+  "recordingPanelCannotFetch": "Cannot fetch the recording or it's too short.",
+  "recordingPanelNA": "N/A",
+  "recordingPanelNaTime": "?? minutes",
+  "recordingPanelSaveIntervalTitle": "Name for this interval",
+  "recordingPanelSaveRecordingTitle": "Name for this recording",
+  "recordingPanelSaveMarkTitle": "Name for this mark",
+  "recordingPanelRemoveQuestion": "Remove this recording?",
+  "recordingPanelSave": "Save",
+  "recordingPanelStart": "Start",
+  "recordingPanelStop": "Stop",
+
+  "searchFieldHint": "Search...",
+
+  "@@locale": "en"
+}

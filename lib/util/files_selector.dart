@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 
+import '../util/locale_manager.dart';
 import '../util/recording_manager.dart';
 import '../widgets/pad.dart';
 import '../widgets/search_field.dart';
@@ -44,13 +45,13 @@ class _FilesSelectorState extends State<FilesSelector> {
               onPressed: () {
                 widget.onChanged(allFiles);
               },
-              child: const Text('select all')
+              child: Text(L(context).fileSelectorSelectAll)
             ),
             ElevatedButton(
               onPressed: () {
                 widget.onChanged([]);
               },
-              child: const Text('select none')
+              child: Text(L(context).fileSelectorSelectNone)
             ),
           ],
         ).padHorizontal,

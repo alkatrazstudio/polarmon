@@ -8,6 +8,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 
 import '../util/future_util.dart';
+import '../util/locale_manager.dart';
 import '../util/recording_manager.dart';
 import '../util/settings.dart';
 import '../widgets/dialogs.dart';
@@ -28,10 +29,6 @@ class RecordingPage extends StatefulWidget {
 
 class _RecordingPageState extends State<RecordingPage> {
   late RecordingFile file;
-
-  static final dateFormat = DateFormat.yMMMMd();
-  static final timeFormat = DateFormat.jm();
-  static final dateFormatForDelete = DateFormat.yMMMd().add_jms();
 
   @override
   void initState() {
@@ -59,23 +56,24 @@ class _RecordingPageState extends State<RecordingPage> {
 
   Widget menu(BuildContext context) {
     return MainMenu(items: [
-      MainMenuItem('Rename', Icons.drive_file_rename_outline, () async {
+      MainMenuItem(L(context).recordingMenuRename, Icons.drive_file_rename_outline, () async {
         var suggestions = await RecordingManager.autocompleteTitles.load();
         var newTitle = await showSaveDialog(
           context: context,
-          title: 'Name for this recording',
+          title: L(context).recordingRenameDialogTitle,
           suggestions: suggestions,
           initialText: await title()
         );
         if(newTitle == null)
           return;
-        var newFile = await RecordingManager.rename(file, newTitle).showErrorToUser(context);
+        var newFile = await RecordingManager.rename(file, newTitle, context).showErrorToUser(context);
         setState(() {
           file = newFile;
         });
       }),
-      MainMenuItem('Delete', Icons.delete, () async {
-        var text = 'Delete this recording:\n\n${await title()}\n\nStart: ${dateFormatForDelete.format(file.startTime)}\nEnd: ${dateFormatForDelete.format(file.endTime)}';
+      MainMenuItem(L(context).recordingMenuDelete, Icons.delete, () async {
+        var dateFormat = DateFormat.yMMMd().add_jms();
+        var text = '${L(context).recordingDeleteTitle}\n\n${await title()}\n\n${L(context).recordingDeleteStart(startTime: dateFormat.format(file.startTime))}\n${L(context).recordingDeleteEnd(endTime: dateFormat.format(file.endTime))}';
         if(!await showConfirmDialog(context: context, text: text))
           return;
         await RecordingManager.delete(file).showErrorToUser(context);
@@ -131,7 +129,7 @@ class _RecordingPageState extends State<RecordingPage> {
                           icon: const Icon(Icons.skip_previous)
                         ),
                         Text(
-                          '${dateFormat.format(file.startTime)}\n${timeFormat.format(file.startTime)} - ${timeFormat.format(file.endTime)}',
+                          '${DateFormat.yMMMMd().format(file.startTime)}\n${DateFormat.jm().format(file.startTime)} - ${DateFormat.jm().format(file.endTime)}',
                           style: Theme.of(context).textTheme.headlineSmall,
                           textAlign: TextAlign.center,
                         ),

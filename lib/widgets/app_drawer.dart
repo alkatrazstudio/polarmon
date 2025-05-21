@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../pages/export_page.dart';
 import '../pages/import_page.dart';
 import '../pages/recording_page.dart';
+import '../util/locale_manager.dart';
 import '../util/recording_manager.dart';
 import '../widgets/dialogs.dart';
 import '../widgets/search_field.dart';
@@ -68,12 +69,12 @@ class _AppDrawerState extends State<AppDrawer> {
                       MaterialPageRoute(builder: (context) => const ExportPage())
                     );
                   },
-                  child: const Text('Export')
+                  child: Text(L(context).appDrawerExport)
                 ),
                 ElevatedButton(
                   onPressed: () async {
                     try {
-                      var importData = await ImportPage.loadData();
+                      var importData = await ImportPage.loadData(context);
                       if(importData == null)
                         return;
                       Navigator.pop(context);
@@ -83,10 +84,10 @@ class _AppDrawerState extends State<AppDrawer> {
                       );
                     } catch(e) {
                       Navigator.pop(context);
-                      showPopupMsg(context, 'Import failed: $e');
+                      showPopupMsg(context, L(context).appDrawerImportFailed(error: e.toString()));
                     }
                   },
-                  child: const Text('Import')
+                  child: Text(L(context).appDrawerImport)
                 )
               ]
             )
