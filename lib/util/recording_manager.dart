@@ -206,6 +206,7 @@ class RecordingFile {
 }
 
 abstract class RecordingManager {
+  static late Future<void> _loadFuture;
   static final notifier = ValueNotifier<List<RecordingFile>>([]);
   static final autocompleteTitles = AutocompleteStore('recordings_autocomplete_titles.json');
 
@@ -286,7 +287,7 @@ abstract class RecordingManager {
     autocompleteTitles.save(titles);
   }
 
-  static Future<void> loadList() async {
+  static Future<void> _loadList() async {
     await migrateSamples();
     await migrateMeta();
 
@@ -305,6 +306,11 @@ abstract class RecordingManager {
     await migrateAutocompleteTitles(files);
   }
 
+  static Future<void> loadList() {
+    _loadFuture = _loadList();
+    return _loadFuture;
+  }
+
   static Future<RecordingFile> add(DeviceRecording rec, String title, List<Mark> marks) async {
     var endTime = rec.startedAt.add(Duration(seconds: rec.samples.length));
     var meta = RecordingMeta(
@@ -315,12 +321,14 @@ abstract class RecordingManager {
     );
     var file = RecordingFile.fromMetaAndSamples(meta, rec.samples);
     await file.resave();
+    await _loadFuture;
     notifier.value = [...notifier.value, file];
     await autocompleteTitles.add(title);
     return file;
   }
 
   static Future<void> delete(RecordingFile fileToDelete) async {
+    await _loadFuture;
     var files = [...notifier.value];
     var recIndex = files.indexWhere((f) => f.id == fileToDelete.id);
     if(recIndex >= 0) {
@@ -332,6 +340,7 @@ abstract class RecordingManager {
   }
 
   static Future<RecordingFile> rename(RecordingFile recToRename, String newTitle) async {
+    await _loadFuture;
     var files = [...notifier.value];
     var fileIndex = files.indexWhere((rec) => rec.id == recToRename.id);
     if(fileIndex < 0)

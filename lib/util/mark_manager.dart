@@ -51,6 +51,7 @@ class Mark {
 }
 
 abstract class MarkManager {
+  static late Future<List<Mark>> _loadFuture;
   static final notifier = ValueNotifier<List<Mark>?>(null);
   static final autocompleteTitles = AutocompleteStore('marks_autocomplete_titles.json');
 
@@ -91,7 +92,7 @@ abstract class MarkManager {
     autocompleteTitles.save(titles);
   }
 
-  static Future<List<Mark>> loadList() async {
+  static Future<List<Mark>> _loadList() async {
     List<Mark> marks;
     try {
       var file = await listFile();
@@ -104,6 +105,11 @@ abstract class MarkManager {
     notifier.value = marks;
     await migrateAutocompleteTitles(marks);
     return marks;
+  }
+
+  static Future<List<Mark>> loadList() {
+    _loadFuture = _loadList();
+    return _loadFuture;
   }
 
   static List<Map<String,dynamic>> listToJson(List<Mark> marks) {
@@ -137,9 +143,8 @@ abstract class MarkManager {
   }
 
   static Future<void> addMark(Mark mark, DeviceRecordingStatus recStatus) async {
-    var marks = notifier.value?.toList();
-    if(marks == null)
-      throw Exception('MarkManager is no ready yet.');
+    await _loadFuture;
+    var marks = notifier.value!.toList();
     var existingIndex = marks.indexWhere((m) => m.startAt == mark.startAt);
     if(existingIndex == -1)
       marks.add(mark);
