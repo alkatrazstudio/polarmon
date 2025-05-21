@@ -37,23 +37,28 @@ class _AppDrawerState extends State<AppDrawer> {
               child: ValueListenableBuilder(
                 valueListenable: RecordingManager.notifier,
                 builder: (context, files, child) {
-                  files = RecordingManager.filter(files, search);
-                  return ListView(
-                    children: files.reversed.map((item) => ListTile(
-                      title: Text(item.timeString),
-                      subtitle: item.fileTitle.isEmpty ? null : Text(
-                        item.fileTitle,
-                        style: const TextStyle(
-                          fontStyle: FontStyle.italic
-                        )
-                      ),
-                      onTap: () {
-                        Navigator.push<void>(
-                          context,
-                          MaterialPageRoute(builder: (context) => RecordingPage(file: item))
-                        );
-                      },
-                    )).toList(),
+                  files = RecordingManager.filter(files, search).reversed.toList();
+                  return ListView.separated(
+                    itemCount: files.length,
+                    separatorBuilder: (context, index) => const Divider(),
+                    itemBuilder: (context, index) {
+                      var item = files[index];
+                      return ListTile(
+                        title: Text(item.timeString),
+                        subtitle: item.fileTitle.isEmpty ? null : Text(
+                          item.fileTitle,
+                          style: const TextStyle(
+                            fontStyle: FontStyle.italic
+                          )
+                        ),
+                        onTap: () {
+                          Navigator.push<void>(
+                            context,
+                            MaterialPageRoute(builder: (context) => RecordingPage(file: item))
+                          );
+                        },
+                      );
+                    },
                   );
                 },
               )
