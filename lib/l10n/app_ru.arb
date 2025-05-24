@@ -1,0 +1,134 @@
+{
+  "exportActionBtn": "Экспортировать",
+  "exportDone": "Экспорт завершён",
+  "exportFailed": "Ошибка экспорта: {error}",
+  "@exportFailed": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "exportListInstructions": "Выберите записи для экспорта.",
+  "exportTitle": "Экспорт",
+
+  "homeCancelBtn": "Отменить",
+  "homeConnectBtn": "Соединиться",
+  "homeDisconnect": "Разъединиться",
+  "homeECG": "ЭКГ",
+  "homeHR": "Пульс",
+  "homeMenuHelp": "Помощь",
+  "homeMenuSettings": "Настройки",
+  "homeStatusConnecting": "Соединение...",
+  "homeTitleNotConnected": "нет соединения",
+
+  "importActionBtn": "Импортировать",
+  "importDone": "Импорт завершён",
+  "importFailed": "Ошибка импорта: {error}",
+  "@importFailed": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "importFileDate": "Файл создан {createdAt}.",
+  "@importFileDate": {
+    "placeholders": {
+      "createdAt": {"type": "String"}
+    }
+  },
+  "importListInstructions": "Выберите записи для импорта.",
+  "importPartiallyDone": "Импорт завершён частично. Не удалось импортировать: {names}",
+  "@importPartiallyDone": {
+    "placeholders": {
+      "names": {"type": "String"}
+    }
+  },
+  "importTitle": "Импорт",
+
+  "recordingDeleteEnd": "Конец: {endTime}",
+  "@recordingDeleteEnd": {
+    "placeholders": {
+      "endTime": {"type": "String"}
+    }
+  },
+  "recordingDeleteStart": "Начало: {startTime}",
+  "@recordingDeleteStart": {
+    "placeholders": {
+      "startTime": {"type": "String"}
+    }
+  },
+  "recordingDeleteTitle": "Удалить эту запись:",
+  "recordingMenuRename": "Переименовать",
+  "recordingMenuDelete": "Удалить",
+  "recordingRenameDialogTitle": "Название для этой записи",
+
+  "recordingManagerFileNotFound": "Файл не найден",
+
+  "settingsCustomHrRange": "Ручной диапазон для пульса",
+  "settingsEcgRange": "Диапазон ЭКГ, мкВ",
+  "settingsLanguage": "Язык / Language",
+
+  "fileSelectorSelectAll": "выбрать всё",
+  "fileSelectorSelectNone": "снять выделение",
+
+  "futureUtilUnknownError": "Неизвестная ошибка",
+
+  "importDataVersionIsBigger": "Версия файла {fileVersion} больше, чем максимально поддерживаемая версия {curVersion}.",
+  "@importDataVersionIsBigger": {
+    "placeholders": {
+      "fileVersion": {"type": "int"},
+      "curVersion": {"type": "int"}
+    }
+  },
+
+  "timeUtilHMS": "{hours}ч {mins}м {secs}с",
+  "@timeUtilHMS": {
+    "placeholders": {
+      "hours": {"type": "int"},
+      "mins": {"type": "String"},
+      "secs": {"type": "String"}
+    }
+  },
+  "timeUtilMS": "{mins}м {secs}с",
+  "@timeUtilMS": {
+    "placeholders": {
+      "mins": {"type": "int"},
+      "secs": {"type": "String"}
+    }
+  },
+  "timeUtilS": "{secs}с",
+  "@timeUtilS": {
+    "placeholders": {
+      "secs": {"type": "int"}
+    }
+  },
+
+  "appDrawerExport": "Экспорт",
+  "appDrawerImport": "Импорт",
+  "appDrawerImportFailed": "Ошибка импорта: {error}",
+  "@appDrawerImportFailed": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+
+  "confirmDialogNo": "Нет",
+  "confirmDialogYes": "Да",
+  "saveDialogUnnamed": "без названия",
+  "saveDialogOk": "OK",
+
+  "ecgStreamingGraphUnit": "мкВ",
+
+  "recordingPanelCannotFetch": "Не удаётся получить запись, или они слишком короткая.",
+  "recordingPanelNA": "Н/Д",
+  "recordingPanelNaTime": "?? минут",
+  "recordingPanelSaveIntervalTitle": "Название интервала",
+  "recordingPanelSaveRecordingTitle": "Название записи",
+  "recordingPanelSaveMarkTitle": "Название отметки",
+  "recordingPanelRemoveQuestion": "Удалить эту запись?",
+  "recordingPanelSave": "Сохранить",
+  "recordingPanelStart": "Начать",
+  "recordingPanelStop": "Стоп",
+
+  "searchFieldHint": "Поиск...",
+
+  "@@locale": "ru"
+}

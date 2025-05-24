@@ -27,6 +27,7 @@ abstract class LocaleManager {
 
   static List<LocaleDropdownItem> get dropdownItems => [
     LocaleDropdownItem(code: 'en', name: 'English'),
+    LocaleDropdownItem(code: 'ru', name: 'Русский'),
   ];
 
   static Locale get fallbackLocale {

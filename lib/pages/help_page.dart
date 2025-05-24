@@ -33,6 +33,32 @@ const _manualHtmlEn = '''
   (mark the end of the interval by tapping the <widget name="bookmark_range_end"></widget> button).</li>
 </ul>
 ''';
+const _manualHtmlRu = '''
+<ul>
+<li>Поддерживаются только устройства Polar H10.</li>
+<li>В настройках Android должны быть включёны Bluetooth и местоположение
+  (PolarMon не использует определение местоположения, но оно нужно для подсоединения к устройству).</li>
+<li>PolarMon автоматом подсоединяется к первому доступному устройству Polar H10.</li>
+<li>При ошибке соединения попробуйте убрать устройство из списка устройств Blutooth и перезапустите PolarMon.</li>
+<li>Заголовок главной страницы приложения показывает уровень батареи и ID устройства.</li>
+<li>Прокручивайте и масштабируйте график по горизонтали, используя зону с иконкой <widget name="scroll_area"></widget>.</li>
+<li>График начинает прокручиваться автоматом, если его прокрутить вручную до самой правой позиции (где он и находится изначально).</li>
+<li>Дотроньтесь до графика, чтобы увидеть точные значения в нужной точке времени.</li>
+<li>Нажмите <widget name="hr_range_1"></widget>/<widget name="hr_range_2"></widget> справа от графика,
+  чтобы переключиться между диапазоном пульса, заданным в настройках, и реальным диапазоном текущих значений.</li>
+<li>Значения ЭКГ указаны в микровольтах.</li>
+<li>Значения не добавляются на график, пока PolarMon свёрнут или закрыт,
+  поэтому используйте функционал записи, чтобы сохранить полный график пульса.</li>
+<li>Для доступа к списку записей нажмите на <widget name="menu"></widget> в верхнем левом углу.</li>
+<li>Переименовать или удалить запись можно на её странице, которую можно открыть, нажав на запись в списке.</li>
+<li>Если PolarMon завис в процессе сохранения записи (сохраняет больше минуты),
+  перезапустите приложение и попробуйте сохранить запись заново или удалите её с устройства, нажав на кнопку
+  <widget name="remove_recording"></widget>.</li>
+<li><widget name="bookmark"></widget> - добавить отметку на график.</li>
+<li><widget name="bookmark_range_start"></widget> - добавить отметку для интервала
+  (конец интервала можно пометить, нажав на кнопку <widget name="bookmark_range_end"></widget>).</li>
+</ul>
+''';
 Map<String, Widget> _manualHtmlWidgets = {
   'scroll_area': Row(
     children: const [
@@ -55,6 +81,7 @@ Map<String, Widget> _manualHtmlWidgets = {
 
 Future<void> openHelpPage(BuildContext context) async {
   var manualHtml = switch(Intl.getCurrentLocale()) {
+    'ru' => _manualHtmlRu,
     _ => _manualHtmlEn
   };
 
