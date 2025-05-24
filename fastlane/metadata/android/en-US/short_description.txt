@@ -1,1 +1,0 @@
-Display HR and ECG data from your Polar H10 device
