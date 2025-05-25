@@ -24,6 +24,7 @@ const _manualHtmlEn = '''
 <li>The realtime graphs are not updated while PolarMon is minimized or closed,
   use the recording feature to save the whole HR graph.</li>
 <li>Access the list of recordings by tapping on <widget name="menu"></widget> in the top left corner.</li>
+<li>You can search the recordings in the list by name or date (date or time should be entered manually into the search field).</li>
 <li>You can rename or remove a recording on its page, which you can open by tapping on the recording in the list.</li>
 <li>In case PolarMon is stuck when saving a recording (keeps saving for more than one minute),
   restart the application and trye to save the recording again or remove it from the device using the
@@ -50,6 +51,7 @@ const _manualHtmlRu = '''
 <li>Значения не добавляются на график, пока PolarMon свёрнут или закрыт,
   поэтому используйте функционал записи, чтобы сохранить полный график пульса.</li>
 <li>Для доступа к списку записей нажмите на <widget name="menu"></widget> в верхнем левом углу.</li>
+<li>Записи в списке можно искать по названию или дате (дату и время надо вводить вручную в поле поиска).</li>
 <li>Переименовать или удалить запись можно на её странице, которую можно открыть, нажав на запись в списке.</li>
 <li>Если PolarMon завис в процессе сохранения записи (сохраняет больше минуты),
   перезапустите приложение и попробуйте сохранить запись заново или удалите её с устройства, нажав на кнопку
