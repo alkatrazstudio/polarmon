@@ -12,3 +12,5 @@ flutter build apk \
     --dart-define=APP_BUILD_TIMESTAMP="$(date +%s)" \
     --dart-define=APP_GIT_HASH="$(git rev-parse HEAD)" \
     --split-debug-info=build/debug_info
+
+echo "APK dir: $(pwd)/build/app/outputs/flutter-apk"
