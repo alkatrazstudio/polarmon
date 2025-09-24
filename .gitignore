@@ -3,6 +3,7 @@
 !.metadata
 
 /build/
+/android/build/
 /lib/l10n/generated/
 
 *.iml
