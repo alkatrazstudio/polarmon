@@ -112,6 +112,7 @@ Future<void> openHelpPage(BuildContext context) async {
         HelpPagePackage.flutter('flutter_form_builder', HelpPageLicense.mit),
         HelpPagePackage.flutter('form_builder_validators', HelpPageLicense.bsd3),
         HelpPagePackage.flutter('path', HelpPageLicense.bsd3),
+        HelpPagePackage.flutter('flutter_foreground_task', HelpPageLicense.mit),
       ],
       assets: const [],
     ))

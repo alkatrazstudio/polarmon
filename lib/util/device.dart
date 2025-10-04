@@ -18,6 +18,16 @@ class DeviceRecording {
   final List<int> samples;
 
   DateTime get finishedAt => startedAt.add(Duration(seconds: samples.length));
+
+  Map<String, dynamic> toJson() => {
+    'startedAt': startedAt.toIso8601String(),
+    'samples': samples,
+  };
+
+  static DeviceRecording fromJson(Map<String, dynamic> json) => DeviceRecording(
+    startedAt: DateTime.parse(json['startedAt'] as String),
+    samples: (json['samples'] as List<dynamic>).map((s) => s as int).toList(),
+  );
 }
 
 class DeviceRecordingStatus {
@@ -28,6 +38,16 @@ class DeviceRecordingStatus {
 
   final DateTime? startedAt;
   final bool isOngoing;
+
+  Map<String, dynamic> toJson() => {
+    'startedAt': startedAt?.toIso8601String(),
+    'isOngoing': isOngoing,
+  };
+
+  static DeviceRecordingStatus fromJson(Map<String, dynamic> json) => DeviceRecordingStatus(
+    startedAt: json['startedAt'] == null ? null : DateTime.tryParse(json['startedAt'] as String),
+    isOngoing: json['isOngoing'] as bool,
+  );
 }
 
 class EcgSample {
@@ -76,7 +96,7 @@ class Device {
     statusNotifier.value = status;
   }
 
-  static void startMonitoring() async {
+  static void startMonitoring() {
     polar.sdkFeatureReady.listen((event) {
       var featureCompleter = getFeatureCompleter(event.identifier, event.feature);
       if(!featureCompleter.isCompleted)
@@ -108,10 +128,13 @@ class Device {
     return featureCompleter.future;
   }
 
-  static Future<Device> connectToFirst() async {
+  static Future<void> requestPermissions() async {
     await polar.requestPermissions();
+  }
+
+  static Future<Device> connectToFirst() async {
     var dev = await polar.searchForDevice().first;
-    await polar.connectToDevice(dev.deviceId);
+    await polar.connectToDevice(dev.deviceId, requestPermissions: false);
     var device = Device(dev);
     return device;
   }

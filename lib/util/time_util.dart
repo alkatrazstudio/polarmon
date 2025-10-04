@@ -10,7 +10,7 @@ abstract class TimeUtil {
   static final dateFormat = DateFormat('yyyyMMddHHmmss');
   static final timestampParser = RegExp(r'^(?<y>\d\d\d\d)(?<M>\d\d)(?<d>\d\d)(?<h>\d\d)(?<m>\d\d)(?<s>\d\d)$'); // DateFormat.parse does not work
 
-  static timeToStr(DateTime date) {
+  static String timeToStr(DateTime date) {
     var dateStr = dateFormat.format(date.toUtc());
     return dateStr;
   }

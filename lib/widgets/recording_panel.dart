@@ -7,11 +7,11 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../pages/recording_page.dart';
-import '../util/device.dart';
 import '../util/future_util.dart';
 import '../util/locale_manager.dart';
 import '../util/mark_manager.dart';
 import '../util/recording_manager.dart';
+import '../util/service.dart';
 import '../util/time_util.dart';
 import '../widgets/dialogs.dart';
 import '../widgets/pad.dart';
@@ -21,7 +21,7 @@ class RecordingPanel extends StatefulWidget {
     required this.device
   });
 
-  final Device device;
+  final DeviceClient device;
 
   final startDateTimeFormat = DateFormat.yMMMd().addPattern('\n').add_jms();
 

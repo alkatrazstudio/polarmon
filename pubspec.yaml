@@ -23,6 +23,7 @@ dependencies:
   flutter_form_builder: 10.2.0
   form_builder_validators: 11.2.0
   path: 1.9.1
+  flutter_foreground_task: 9.1.0
 
   help_page:
     git:

@@ -130,5 +130,7 @@
 
   "searchFieldHint": "Search...",
 
+  "serviceStop": "Stop",
+
   "@@locale": "en"
 }

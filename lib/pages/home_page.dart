@@ -1,13 +1,20 @@
 // SPDX-License-Identifier: MPL-2.0
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../pages/help_page.dart';
 import '../pages/settings_page.dart';
 import '../util/device.dart';
+import '../util/file_util.dart';
 import '../util/future_util.dart';
 import '../util/locale_manager.dart';
+import '../util/memory_file.dart';
+import '../util/service.dart';
+import '../util/time_util.dart';
 import '../widgets/app_drawer.dart';
+import '../widgets/dialogs.dart';
 import '../widgets/ecg_streaming_graph.dart';
 import '../widgets/hr_display.dart';
 import '../widgets/hr_streaming_graph.dart';
@@ -25,8 +32,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  Device? device;
-  Future<Device>? connectingFuture;
+  DeviceClient? device;
+  Future<DeviceClient>? connectingFuture;
   Future<void>? disconnectingFuture;
   Future<void>? recFuture;
   Stream<int>? hrStream;
@@ -36,7 +43,7 @@ class _HomePageState extends State<HomePage> {
   var prevStatus = DeviceStatus.unknown;
 
   void startConnecting() {
-    var newConnectingFuture = Device.connectToFirst().showErrorToUser(context);
+    var newConnectingFuture = DeviceClient.connectToFirst(context).showErrorToUser(context);
     setState(() {
       connectingFuture = newConnectingFuture;
     });
@@ -111,10 +118,10 @@ class _HomePageState extends State<HomePage> {
             ElevatedButton(
               onPressed: disconnectingFuture != null ? null : () {
                 setState(() {
-                  clearDevice();
                   disconnectingFuture = device?.disconnect().whenComplete(() => setState((){
                     disconnectingFuture = null;
                   })).showErrorToUser(context);
+                  clearDevice();
                 });
               },
               child: Text(L(context).homeDisconnect)
@@ -182,7 +189,7 @@ class _HomePageState extends State<HomePage> {
                   return Text('[$level%] ');
                 },
               ),
-              Text(device!.dev.deviceId)
+              Text(device!.deviceId)
             ]
           ),
         actions: [
