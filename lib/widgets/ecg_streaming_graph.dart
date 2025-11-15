@@ -7,8 +7,13 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 import '../util/ecg_process.dart';
+import '../widgets/dialogs.dart';
+import '../util/dev_build.dart';
 import '../util/locale_manager.dart';
+import '../util/memory_file.dart';
 import '../util/settings.dart';
+import '../util/storage.dart';
+import '../util/time_util.dart';
 import '../widgets/graph.dart';
 
 class EcgStreamingGraph extends StatefulWidget {
@@ -113,24 +118,48 @@ class _EcgStreamingGraphState extends State<EcgStreamingGraph> {
         var maxTS = points.last.x;
         var minTS = min(points.first.x, maxTS - 1_000_000 * 60 * 0.1);
 
-        return ValueListenableBuilder(
-          valueListenable: Settings.notifier,
-          builder: (context, settings, child) {
-            return Graph(
-              key: const ValueKey('ecg-graph'),
-              points: points,
-              minVal: settings.ecgMin,
-              maxVal: settings.ecgMax,
-              minTS: minTS,
-              maxTS: maxTS,
-              offsetFromEnd: true,
-              clipX: true,
-              unit: L(context).ecgStreamingGraphUnit,
-              showValLimits: false,
-              ranges: ranges,
-              lines: lines,
-            );
-          }
+        return Stack(
+          children: [
+            ValueListenableBuilder(
+              valueListenable: Settings.notifier,
+              builder: (context, settings, child) {
+                return Graph(
+                  key: const ValueKey('ecg-graph'),
+                  points: points,
+                  minVal: settings.ecgMin,
+                  maxVal: settings.ecgMax,
+                  minTS: minTS,
+                  maxTS: maxTS,
+                  offsetFromEnd: true,
+                  clipX: true,
+                  unit: L(context).ecgStreamingGraphUnit,
+                  showValLimits: false,
+                  ranges: ranges,
+                  lines: lines,
+                );
+              }
+            ),
+            if(isDevBuild)
+              Positioned(
+                right: 0,
+                bottom: 92,
+                child: IconButton(
+                  onPressed: () async {
+                    var filename = 'ecg-${TimeUtil.timeToStr(DateTime.now())}.bin';
+                    var memFile = MemoryFile(length: points.length * (2 + 8));
+                    for(var point in points) {
+                      memFile.writeInt(point.x.round());
+                      memFile.writeInt16(point.y.round());
+                    }
+                    var bytes = memFile.toUint8List();
+                    var uri = await Storage.saveFile(filename, 'application/octet-stream', bytes);
+                    if(uri != null)
+                      showPopupMsg(context, L(context).exportDone);
+                  },
+                  icon: const Icon(Icons.save)
+                ),
+              )
+         ],
         );
       },
     );

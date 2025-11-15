@@ -51,19 +51,6 @@ class DeviceRecordingStatus {
   );
 }
 
-class EcgSample {
-  const EcgSample({
-    required this.timestamp,
-    required this.voltage
-  });
-
-  final DateTime timestamp;
-  final int voltage;
-
-  int get tsMicroSecs => timestamp.microsecondsSinceEpoch;
-  double get ts => tsMicroSecs / 1_000_000;
-}
-
 enum DeviceStatus {
   unknown,
   disconnected,
