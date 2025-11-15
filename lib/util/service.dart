@@ -72,6 +72,7 @@ class Service extends TaskHandler {
   static final rnd = Random();
 
   static Future<void>? _startFuture;
+  static DeviceServer? server;
 
   //
   // FROM APP
@@ -270,12 +271,51 @@ class Service extends TaskHandler {
   }
 }
 
+class BpmWithTimestamp {
+  const BpmWithTimestamp({
+    required this.bpm,
+    required this.timestamp,
+  });
+
+  final int bpm;
+  final DateTime timestamp;
+}
+
 class DeviceServer {
   static final Map<String, DeviceServer> _servers = {};
 
+  static const _irrWeights = {
+    IrregularityType.highRAmplitude: 1,
+    IrregularityType.longSToZeroDuration: 1,
+    IrregularityType.longFullDuration: 2
+  };
+  static const _minWeightToDetect = 2;
+  static const _notificationUpdateIntervalSecs = 3;
+
   DeviceServer(this.device) {
     _irrStream = device.startHeartbeatStream();
+    _irrStream.listen((beat) {
+      if(!beat.beat.isValid)
+        return;
+      beatsCount++;
+      var irrTotalWeight = 0;
+      for(var irr in beat.irregularityTypes)
+        irrTotalWeight += _irrWeights[irr] ?? 0;
+      if(irrTotalWeight >= _minWeightToDetect)
+        irrTimestamps.add(beat.beat.samples.first.timestamp);
+    });
     _hrStream = device.startHrStreaming();
+    _hrStream.listen((rate) {
+      bpms.add(BpmWithTimestamp(bpm: rate, timestamp: DateTime.now()));
+    });
+
+    Stream.periodic(const Duration(seconds: _notificationUpdateIntervalSecs)).listen((_) {
+      if(Service.server == this)
+        updateNotification();
+    });
+
+    Service.server = this;
+    updateNotification();
   }
 
   Device device;
@@ -283,6 +323,62 @@ class DeviceServer {
   NotifierWrapper<DeviceRecordingStatus?>? _recordingStatusNotifierWrapper;
   late Stream<int> _hrStream;
   late Stream<HeartbeatWithIrregularity> _irrStream;
+  var irrTimestamps = <DateTime>[];
+  var beatsCount = 0;
+  var bpms = <BpmWithTimestamp>[];
+  var startedAt = DateTime.now();
+
+  int irrCountSince(DateTime from) {
+    var irrs = irrTimestamps.reversed.takeWhile((dt) => dt.microsecondsSinceEpoch > from.microsecondsSinceEpoch);
+    return irrs.length;
+  }
+
+  (int, int, int) bpmPercentileSince(DateTime from) {
+    var latestBpms = bpms.reversed.takeWhile((bpm) => bpm.timestamp.microsecondsSinceEpoch > from.microsecondsSinceEpoch).toList();
+    if(latestBpms.isEmpty)
+      return (0, 0, 0);
+    latestBpms = latestBpms.sortedBy((bpm) => bpm.bpm);
+    var midIndex = max(0, latestBpms.length / 2).floor();
+    return (latestBpms.first.bpm, latestBpms[midIndex].bpm, latestBpms.last.bpm);
+  }
+
+  void updateNotification() {
+    var duration = DateTime.now().difference(startedAt);
+    var durationHours = duration.inHours;
+    var durationMinutes = duration.inMinutes.remainder(60).toString().padLeft(2, '0');
+    var latestBpm = bpms.lastOrNull?.bpm ?? 0;
+    var notificationTitle = '$durationHours:$durationMinutes - $latestBpm';
+
+    var irrCount = irrTimestamps.length;
+    var beatsPerIrr = irrCount == 0 ? 0 : (beatsCount / irrCount).ceil();
+    var notificationText = '$irrCount / $beatsCount${beatsPerIrr == 0 ? '' : ' (1 / $beatsPerIrr)'}';
+
+    var now = DateTime.now();
+    var prev10min = now.subtract(const Duration(minutes: 10));
+    if(prev10min.microsecondsSinceEpoch > startedAt.microsecondsSinceEpoch) {
+      var (last10MinutesMinHr, last10MinutesMedHr, last10MinutesMaxHr) = bpmPercentileSince(prev10min);
+      var last10MinutesIrrCount = irrCountSince(prev10min);
+      notificationTitle += '; 10M: $last10MinutesMinHr-$last10MinutesMedHr-$last10MinutesMaxHr';
+      notificationText += '; 10M: $last10MinutesIrrCount';
+      var prev1hour = now.subtract(const Duration(hours: 1));
+      if(prev1hour.microsecondsSinceEpoch > startedAt.microsecondsSinceEpoch) {
+        var (lastHourMinHr, lastHourMedHr, lastHourMaxHr) = bpmPercentileSince(prev1hour);
+        var lastHourIrrCount = irrCountSince(prev1hour);
+        notificationTitle += '; 1H: $lastHourMinHr-$lastHourMedHr-$lastHourMaxHr';
+        notificationText += '; 1H: $lastHourIrrCount';
+        var prev6hours = now.subtract(const Duration(hours: 6));
+        if(prev6hours.microsecondsSinceEpoch > startedAt.microsecondsSinceEpoch) {
+          var last6HoursIrrCount = irrCountSince(prev6hours);
+          notificationText += '; 6H: $last6HoursIrrCount';
+        }
+      }
+    }
+
+    FlutterForegroundTask.updateService(
+      notificationTitle: notificationTitle,
+      notificationText: notificationText,
+    );
+  }
 
   static Future<dynamic> call(String funcName, Map<String, dynamic> args) async {
     if(funcName == 'connectToFirst') {

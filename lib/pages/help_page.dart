@@ -52,6 +52,45 @@ const _manualHtmlEn = '''
   <li>"S0L" - the recovery from S peak to zero is much longer than usual</li>
   <li>"RR" - more than one R slope at a time (the R slope has one or more notches)</li>
 </ul>
+
+<h3>Notification</h3>
+<p>
+  Polarmon runs as a service in background.
+  It displays a notification with some statistics.
+</p>
+<p>
+  The first line of the notification starts with "[elapsed time, h:mm] - [current heart rate]".
+  Then info about averages/extremes will be appended in the format of "[period]: [min-median-max]".
+  The info about the periods will only show after the amount of time specified in the period has passed.
+</p>
+<p>
+  Example: "1:23 - 76; 10M: 68-72-90; 1H: 66-70-115".
+  It means:
+</p>
+<ul>
+<li>the statistics is gathered for 1 hour 23 minutes</li>
+<li>the current heart rate is 76 beats per minute</li>
+<li>for the past 10 minutes: the minimum heart rate is 68, the median - 72, the maximum - 90</li>
+<li>for the past hour: the minimum heart rate is 66, the median - 70, the maximum - 115</li>
+</ul>
+<p>
+  The second line of the notification show the detected irregular heartbeats.
+  The heartbeat is considered irregular if it has both R▲ and S0L, or L (see above for explanation).
+  The line starts with "[irregular heartbeats count] / [total heartbeats] ([irregular heartbeats rate])".
+  Then info about the number of irregular heartbeats per certain period will be shown in the format of "[period]: [irregular heartbeats count]".
+  The info about the periods will only show after the amount of time specified in the period has passed.
+</p>
+<p>
+  Example: "40 / 35876 (1 in 897); 10M: 2; 1H: 15; 6H: 28".
+  It means:
+</p>
+<ul>
+<li>20 out of 35876 heartbeats were detected as irregular</li>
+<li>roughly 1 in each 897 heartbeats are irregular, on average</li>
+<li>for the past 10 minutes there were 2 irregular heartbeats</li>
+<li>for the past hour there were 15 irregular heartbeats</li>
+<li>for the past 6 hours there were 28 irregular heartbeats</li>
+</ul>
 ''';
 const _manualHtmlRu = '''
 <ul>
@@ -97,6 +136,46 @@ const _manualHtmlRu = '''
   <li>"S▼" - амплитуда зубца S значительно ниже обычного</li>
   <li>"S0L" - восстановление с пика зубца S до нуля значительно дольше обычного</li>
   <li>"RR" - более одного зубца R подряд</li>
+</ul>
+
+<h3>Оповещение</h3>
+<p>
+  Polarmon работает как сервис на заднем фоне.
+  Он показывает оповещение в области оповещений.
+  В этом оповещении показывается некоторая статистика.
+</p>
+<p>
+  Первая строка оповещения начинается с "[прошедшее время, ч:мм] - [текущий пульс]".
+  Далее будет идти информация о средних и крайних значениях пульса в формате "[период]: [минимум-медиана-максимум]".
+  Информация по каждому интервалу будет показана только после того, как пройдёт соответствующее количество времени.
+</p>
+<p>
+  Пример: "1:23 - 76; 10M: 68-72-90; 1H: 66-70-115".
+  Это означает:
+</p>
+<ul>
+<li>статистика собрана за 1 час и 23 минуты</li>
+<li>текущий пульс - 76 ударов в минуту</li>
+<li>за последние 10 минут: минимальный пульс - 68, медиана - 72, максимальный - 90</li>
+<li>за последний час: минимальный пульс - 66, медиана - 70, максимальный - 115</li>
+</ul>
+<p>
+  Вторая строка оповещения показывает зафиксированные нарушения сердечного ритма (далее - НСР).
+  В контексте Polarmon НСР - это наличие либо R▲ и S0L, либо L (см. описание этих сокращений выше).
+  Строка начинается с "[число НСР] / [общее число ударов сердца] ([частота НСР])".
+  Далее будет показано число НСР за определённый промежуток времени в формате "[период]: [число НСР]".
+  Информация по каждому интервалу будет показана только после того, как пройдёт соответствующее количество времени.
+</p>
+<p>
+  Пример: "40 / 35876 (1 in 897); 10M: 2; 1H: 15; 6H: 28".
+  Это означает:
+</p>
+<ul>
+<li>в 20 из 35876 ударах сердца выявлены нарушения</li>
+<li>НРС встречаются примерно каждые 897 ударов сердца</li>
+<li>за последние 10 минут было 2 НРС</li>
+<li>за последний час было 15 НРС</li>
+<li>за последние 6 часов было 28 НРС</li>
 </ul>
 ''';
 Map<String, Widget> _manualHtmlWidgets = {
