@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 
 import 'package:polar/polar.dart';
 
+import '../util/ecg_process.dart';
 import '../util/time_util.dart';
 
 class DeviceRecording {
@@ -58,6 +59,9 @@ class EcgSample {
 
   final DateTime timestamp;
   final int voltage;
+
+  int get tsMicroSecs => timestamp.microsecondsSinceEpoch;
+  double get ts => tsMicroSecs / 1_000_000;
 }
 
 enum DeviceStatus {
@@ -174,7 +178,7 @@ class Device {
 
   Stream<int> startHrStreaming() => _startHrStreaming().asBroadcastStream();
 
-  Stream<Iterable<EcgSample>> _startEcgStreaming() async* {
+  Stream<EcgSample> _startEcgStreaming() async* {
     await waitForFeature(PolarSdkFeature.onlineStreaming);
     int? initialOffset;
     var allSettings = await polar.requestStreamSettings(dev.deviceId, PolarDataType.ecg);
@@ -182,20 +186,27 @@ class Device {
     try {
       await for(var data in polar.startEcgStreaming(dev.deviceId, settings: maxSettings)) {
         initialOffset ??= DateTime.now().microsecondsSinceEpoch - data.samples.first.timeStamp.microsecondsSinceEpoch;
-        var samples = data.samples.map(
-          (sample) => EcgSample(
-            timestamp: DateTime.fromMicrosecondsSinceEpoch(sample.timeStamp.microsecondsSinceEpoch + initialOffset!),
-            voltage: sample.voltage
-          )
-        );
-        yield samples;
+        for(var rawSample in data.samples) {
+          var ecgSample = EcgSample(
+            timestamp: DateTime.fromMicrosecondsSinceEpoch(rawSample.timeStamp.microsecondsSinceEpoch + initialOffset),
+            voltage: rawSample.voltage,
+          );
+          yield ecgSample;
+        }
       }
     } catch(e) {
       //
     }
   }
 
-  Stream<Iterable<EcgSample>> startEcgStreaming() => _startEcgStreaming().asBroadcastStream();
+  Stream<HeartbeatWithIrregularity> _startHeartbeatStream() {
+    var ecgStream = _startEcgStreaming();
+    var beatsStream = ecgSamplesToHeartbeats(ecgStream);
+    var irrBeatsStream = detectIrregularities(beatsStream);
+    return irrBeatsStream;
+  }
+
+  Stream<HeartbeatWithIrregularity> startHeartbeatStream() => _startHeartbeatStream().asBroadcastStream();
 
   Future<PolarExerciseEntry?> getCurrentExercise() async {
     await waitForFeature(PolarSdkFeature.h10ExerciseRecording);

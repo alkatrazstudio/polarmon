@@ -25,7 +25,9 @@ class Graph extends StatefulWidget {
     this.recordingStartedAt,
     this.unit = '',
     this.showValLimits = true,
-    this.customRangeIsUsed
+    this.customRangeIsUsed,
+    this.ranges = const [],
+    this.lines = const [],
   }):
     minVal = minVal.toDouble(),
     maxVal = maxVal.toDouble(),
@@ -51,6 +53,8 @@ class Graph extends StatefulWidget {
   final double yGridInterval;
   final bool showValLimits;
   final bool? customRangeIsUsed;
+  final List<VerticalRangeAnnotation> ranges;
+  final List<VerticalLine> lines;
 
   @override
   State<Graph> createState() => _GraphState();
@@ -120,13 +124,16 @@ class _GraphState extends State<Graph> {
       duration: Duration.zero,
       LineChartData(
         rangeAnnotations: RangeAnnotations(
-          verticalRangeAnnotations: widget.marks.where((mark) => mark.endAt != null).map(
-            (mark) => VerticalRangeAnnotation(
-              x1: mark.startAt.microsecondsSinceEpoch.toDouble(),
-              x2: mark.endAt!.microsecondsSinceEpoch.toDouble(),
-              color: Colors.blue.withAlpha(64)
-            )
-          ).toList()
+          verticalRangeAnnotations: [
+            ...widget.marks.where((mark) => mark.endAt != null).map(
+              (mark) => VerticalRangeAnnotation(
+                x1: mark.startAt.microsecondsSinceEpoch.toDouble(),
+                x2: mark.endAt!.microsecondsSinceEpoch.toDouble(),
+                color: Colors.blue.withAlpha(64)
+              )
+            ),
+            ...widget.ranges
+          ].toList()
         ),
         extraLinesData: ExtraLinesData(
           verticalLines: [
@@ -152,7 +159,8 @@ class _GraphState extends State<Graph> {
                 x: widget.recordingStartedAt!.microsecondsSinceEpoch.toDouble(),
                 color: Colors.red,
                 strokeWidth: 1,
-              )
+              ),
+            ...widget.lines
           ]
         ),
         clipData: widget.clipX ? const FlClipData.all() : const FlClipData.vertical(),

@@ -7,14 +7,11 @@ import 'package:flutter/material.dart';
 import '../pages/help_page.dart';
 import '../pages/settings_page.dart';
 import '../util/device.dart';
-import '../util/file_util.dart';
+import '../util/ecg_process.dart';
 import '../util/future_util.dart';
 import '../util/locale_manager.dart';
-import '../util/memory_file.dart';
 import '../util/service.dart';
-import '../util/time_util.dart';
 import '../widgets/app_drawer.dart';
-import '../widgets/dialogs.dart';
 import '../widgets/ecg_streaming_graph.dart';
 import '../widgets/hr_display.dart';
 import '../widgets/hr_streaming_graph.dart';
@@ -37,7 +34,7 @@ class _HomePageState extends State<HomePage> {
   Future<void>? disconnectingFuture;
   Future<void>? recFuture;
   Stream<int>? hrStream;
-  Stream<Iterable<EcgSample>>? ecgStream;
+  Stream<HeartbeatWithIrregularity>? heartbeatStream;
   var graphType = GraphType.hr;
   var enableEcg = false;
   var prevStatus = DeviceStatus.unknown;
@@ -50,8 +47,8 @@ class _HomePageState extends State<HomePage> {
     newConnectingFuture.then((newDevice) => setState((){
       device = newDevice;
       hrStream = newDevice.startHrStreaming().showErrorToUser(context);
-      if(enableEcg && ecgStream == null)
-        ecgStream = newDevice.startEcgStreaming().showErrorToUser(context);
+      if(enableEcg && heartbeatStream == null)
+        heartbeatStream = newDevice.startHeartbeatStreaming().showErrorToUser(context);
       prevStatus = DeviceStatus.unknown;
     })).onError((error, stackTrace) => setState((){
       device = null;
@@ -63,8 +60,8 @@ class _HomePageState extends State<HomePage> {
   void startEcgStreaming() {
     setState(() {
       enableEcg = true;
-      if(ecgStream == null && device != null)
-        ecgStream = device!.startEcgStreaming().showErrorToUser(context);
+      if(heartbeatStream == null && device != null)
+        heartbeatStream = device!.startHeartbeatStreaming().showErrorToUser(context);
     });
   }
 
@@ -72,8 +69,8 @@ class _HomePageState extends State<HomePage> {
     device = null;
     if(hrStream != null)
       hrStream = const Stream.empty();
-    if(ecgStream != null)
-      ecgStream = const Stream.empty();
+    if(heartbeatStream != null)
+      heartbeatStream = const Stream.empty();
   }
 
   Widget connectionWidget() {
@@ -224,9 +221,9 @@ class _HomePageState extends State<HomePage> {
                   recordingStatus: device!.recordingStatus,
                 )
               ),
-            if(ecgStream != null && graphType == GraphType.ecg)
+            if(heartbeatStream != null && graphType == GraphType.ecg)
               EcgStreamingGraph(
-                stream: ecgStream!
+                stream: heartbeatStream!
               ),
             if(device != null)
               Pad.verticalSpace,

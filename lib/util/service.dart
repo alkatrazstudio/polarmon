@@ -7,9 +7,11 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import 'package:collection/collection.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 
 import '../util/device.dart';
+import '../util/ecg_process.dart';
 import '../util/locale_manager.dart';
 import '../util/memory_file.dart';
 
@@ -271,11 +273,16 @@ class Service extends TaskHandler {
 class DeviceServer {
   static final Map<String, DeviceServer> _servers = {};
 
-  DeviceServer(this.device);
+  DeviceServer(this.device) {
+    _irrStream = device.startHeartbeatStream();
+    _hrStream = device.startHrStreaming();
+  }
 
   Device device;
   NotifierWrapper<DeviceStatus>? _statusNotifierWrapper;
   NotifierWrapper<DeviceRecordingStatus?>? _recordingStatusNotifierWrapper;
+  late Stream<int> _hrStream;
+  late Stream<HeartbeatWithIrregularity> _irrStream;
 
   static Future<dynamic> call(String funcName, Map<String, dynamic> args) async {
     if(funcName == 'connectToFirst') {
@@ -312,23 +319,26 @@ class DeviceServer {
         return status;
 
       case 'startHrStreaming':
-        var stream = server.device.startHrStreaming();
         return StreamWrapper.init(
-          stream: stream,
+          stream: server._hrStream,
           writeToMemoryFile: (hr, f) => f.writeUint8(hr)
         );
 
-      case 'startEcgStreaming':
-        var stream = server.device.startEcgStreaming();
+      case 'startHeartbeatStreaming':
         return StreamWrapper.init(
-          stream: stream,
-          writeToMemoryFile: (ecgs, f) {
-            var items = ecgs.toList();
-            f.writeInt(items.length);
-            for(var item in items) {
-              f.writeInt(item.timestamp.microsecondsSinceEpoch);
-              f.writeInt16(item.voltage);
+          stream: server._irrStream,
+          writeToMemoryFile: (beat, f) {
+            f.writeInt(beat.beat.samples.length);
+            for(var sample in beat.beat.samples) {
+              f.writeInt(sample.tsMicroSecs);
+              f.writeInt16(sample.voltage);
             }
+            f.writeInt(beat.beat.rPeakIndex);
+            f.writeInt(beat.beat.sPeakIndex);
+            f.writeInt(beat.beat.qrsEndIndex);
+            f.writeUint8(beat.irregularityTypes.length);
+            for(var irr in beat.irregularityTypes)
+              f.writeUint8(irr.index);
           }
         );
 
@@ -419,13 +429,13 @@ class DeviceClient {
     );
   }
 
-  Stream<List<EcgSample>> startEcgStreaming() {
+  Stream<HeartbeatWithIrregularity> startHeartbeatStreaming() {
     return Service.stream(
-      'startEcgStreaming',
+      'startHeartbeatStreaming',
       {'deviceId': deviceId},
       (memFile) {
-        var itemsCount = memFile.readInt();
-        var items = List.generate(itemsCount, (_) {
+        var samplesCount = memFile.readInt();
+        var samples = List.generate(samplesCount, (_) {
           var microSecs = memFile.readInt();
           var timestamp = DateTime.fromMicrosecondsSinceEpoch(microSecs);
           var voltage = memFile.readInt16();
@@ -434,7 +444,26 @@ class DeviceClient {
             voltage: voltage,
           );
         });
-        return items;
+        var rPeakIndex = memFile.readInt();
+        var sPeakIndex = memFile.readInt();
+        var qrsEndIndex = memFile.readInt();
+        var irrCount = memFile.readUint8();
+        var irregularityTypes = <IrregularityType>{};
+        for(var a = 0; a < irrCount; a++) {
+          var irrTypeIndex = memFile.readUint8();
+          var irrType = IrregularityType.values[irrTypeIndex];
+          irregularityTypes.add(irrType);
+        }
+        return HeartbeatWithIrregularity(
+          beat: Heartbeat(
+            samples: samples,
+            rPeakIndex: rPeakIndex,
+            sPeakIndex: sPeakIndex,
+            qrsEndIndex: qrsEndIndex,
+            //medianZero: medianZero
+          ),
+          irregularityTypes: irregularityTypes
+        );
       }
     );
   }

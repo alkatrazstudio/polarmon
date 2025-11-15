@@ -33,6 +33,25 @@ const _manualHtmlEn = '''
 <li><widget name="bookmark_range_start"></widget> - add a bookmark for an interval
   (mark the end of the interval by tapping the <widget name="bookmark_range_end"></widget> button).</li>
 </ul>
+
+<h3>Irregular heartbeat detection</h3>
+<p>
+  The ECG will show detected irregular heartbeats with red lines.
+  This is an experimental feature, may not work correctly or at all.
+</p>
+<p>
+  Each irregular heartbeat will be marked with one or more abbreviated comments.
+  The list of possible comments is as follows:
+</p>
+<ul>
+  <li>"L" - the heartbeat interval is much longer than usual</li>
+  <li>"R▲" - the R peak is much higher than usual</li>
+  <li>"S▲" - the S peak is much higher than usual</li>
+  <li>"R▼" - the R peak is much lower than usual</li>
+  <li>"S▼" - the S peak is much lower than usual</li>
+  <li>"S0L" - the recovery from S peak to zero is much longer than usual</li>
+  <li>"RR" - more than one R slope at a time (the R slope has one or more notches)</li>
+</ul>
 ''';
 const _manualHtmlRu = '''
 <ul>
@@ -59,6 +78,25 @@ const _manualHtmlRu = '''
 <li><widget name="bookmark"></widget> - добавить отметку на график.</li>
 <li><widget name="bookmark_range_start"></widget> - добавить отметку для интервала
   (конец интервала можно пометить, нажав на кнопку <widget name="bookmark_range_end"></widget>).</li>
+</ul>
+
+<h3>Обнаружение аритмии</h3>
+<p>
+  На графике ЭКГ будут видны зафиксированные признаки аритмии, которые будут отмечены красными линиями.
+  Это экспериментальная функция, она может плохо работать или не работать вообще.
+</p>
+<p>
+  Каждый признак аритмии будет отмечен комментарием в виде аббревиатуры.
+  Список возможных комментариев:
+</p>
+<ul>
+  <li>"L" - длительность удара сердца значительно больше обычного</li>
+  <li>"R▲" - амплитуда зубца R значительно выше обычного</li>
+  <li>"S▲" - амплитуда зубца S значительно выше обычного</li>
+  <li>"R▼" - амплитуда зубца R значительно ниже обычного</li>
+  <li>"S▼" - амплитуда зубца S значительно ниже обычного</li>
+  <li>"S0L" - восстановление с пика зубца S до нуля значительно дольше обычного</li>
+  <li>"RR" - более одного зубца R подряд</li>
 </ul>
 ''';
 Map<String, Widget> _manualHtmlWidgets = {
