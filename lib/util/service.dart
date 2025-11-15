@@ -65,6 +65,7 @@ class NotifierWrapper<T> extends StreamWrapper<T> {
 }
 
 class Service extends TaskHandler {
+  static const btnReset = 'reset';
   static const btnStop = 'stop';
 
   static final _completers = <int, Completer>{};
@@ -117,6 +118,7 @@ class Service extends TaskHandler {
         backgroundColor: Color.fromARGB(255, 251, 86, 59),
       ),
       notificationButtons: [
+        NotificationButton(id: btnReset, text: L(context).serviceReset),
         NotificationButton(id: btnStop, text: L(context).serviceStop),
       ],
       notificationInitialRoute: '/',
@@ -226,8 +228,15 @@ class Service extends TaskHandler {
 
   @override
   void onNotificationButtonPressed(String id) {
-    if(id == btnStop)
-      FlutterForegroundTask.stopService();
+    switch(id) {
+      case btnReset:
+        server?.resetStats();
+        break;
+
+      case btnStop:
+        FlutterForegroundTask.stopService();
+        break;
+    }
   }
 
   @override
@@ -378,6 +387,14 @@ class DeviceServer {
       notificationTitle: notificationTitle,
       notificationText: notificationText,
     );
+  }
+
+  void resetStats() {
+    irrTimestamps = [];
+    beatsCount = 0;
+    bpms = [];
+    startedAt = DateTime.now();
+    updateNotification();
   }
 
   static Future<dynamic> call(String funcName, Map<String, dynamic> args) async {

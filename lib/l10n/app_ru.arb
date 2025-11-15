@@ -130,6 +130,7 @@
 
   "searchFieldHint": "Поиск...",
 
+  "serviceReset": "Обнулить",
   "serviceStop": "Остановить",
 
   "@@locale": "ru"
