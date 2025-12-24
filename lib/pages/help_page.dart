@@ -27,7 +27,7 @@ const _manualHtmlEn = '''
 <li>You can search the recordings in the list by name or date (date or time should be entered manually into the search field).</li>
 <li>You can rename or remove a recording on its page, which you can open by tapping on the recording in the list.</li>
 <li>In case PolarMon is stuck when saving a recording (keeps saving for more than one minute),
-  restart the application and trye to save the recording again or remove it from the device using the
+  restart the application and true to save the recording again or remove it from the device using the
   <widget name="remove_recording"></widget> button.</li>
 <li><widget name="bookmark"></widget> - add a bookmark to the graph.</li>
 <li><widget name="bookmark_range_start"></widget> - add a bookmark for an interval
@@ -92,13 +92,14 @@ const _manualHtmlEn = '''
 <li>for the past 6 hours there were 28 irregular heartbeats</li>
 </ul>
 ''';
+
 const _manualHtmlRu = '''
 <ul>
 <li>Поддерживаются только устройства Polar H10.</li>
-<li>В настройках Android должны быть включёны Bluetooth и местоположение
+<li>В настройках Android должны быть включены Bluetooth и местоположение
   (PolarMon не использует определение местоположения, но оно нужно для подсоединения к устройству).</li>
 <li>PolarMon автоматом подсоединяется к первому доступному устройству Polar H10.</li>
-<li>При ошибке соединения попробуйте убрать устройство из списка устройств Blutooth и перезапустите PolarMon.</li>
+<li>При ошибке соединения попробуйте убрать устройство из списка устройств Bluetooth и перезапустите PolarMon.</li>
 <li>Заголовок главной страницы приложения показывает уровень батареи и ID устройства.</li>
 <li>Прокручивайте и масштабируйте график по горизонтали, используя зону с иконкой <widget name="scroll_area"></widget>.</li>
 <li>График начинает прокручиваться автоматом, если его прокрутить вручную до самой правой позиции (где он и находится изначально).</li>
