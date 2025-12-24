@@ -5,8 +5,8 @@ publish_to: 'none'
 version: 0.2.0+4
 
 environment:
-  flutter: ^3.35.4
-  sdk: ^3.9.2
+  flutter: ^3.38.5
+  sdk: ^3.10.4
 
 dependencies:
   flutter:
@@ -14,7 +14,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
 
-  polar: 7.7.0
+  polar: 7.8.0
   fl_chart: 1.1.1
   wakelock_plus: 1.4.0
   intl: any
@@ -23,7 +23,7 @@ dependencies:
   flutter_form_builder: 10.2.0
   form_builder_validators: 11.2.0
   path: 1.9.1
-  flutter_foreground_task: 9.1.0
+  flutter_foreground_task: 9.2.0
 
   help_page:
     git:
