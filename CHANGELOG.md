@@ -1,6 +1,12 @@
 # PolarMon - CHANGELOG
 
 
+## v1.0.0 (Jan 1, 2026)
+
+- Added: background service
+- Added: irregular heartbeat detection
+
+
 ## v0.2.0 (May 25, 2025)
 
 - Added: Russian language

@@ -2,7 +2,7 @@ name: polarmon
 description: 'PolarMon'
 publish_to: 'none'
 
-version: 0.2.0+4
+version: 1.0.0+5
 
 environment:
   flutter: ^3.38.5
