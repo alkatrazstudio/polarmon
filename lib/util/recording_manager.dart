@@ -292,12 +292,14 @@ abstract class RecordingManager {
 
     var dir = Directory(await RecordingFile.baseDir());
     var files = <RecordingFile>[];
-    await for(var entry in dir.list()) {
-      if(entry is! File)
-        continue;
-      var recFile = RecordingFile.fromFile(entry);
-      if(recFile != null)
-        files.add(recFile);
+    if(await dir.exists()) {
+      await for(var entry in dir.list()) {
+        if(entry is! File)
+          continue;
+        var recFile = RecordingFile.fromFile(entry);
+        if(recFile != null)
+          files.add(recFile);
+      }
     }
     files.sortBy((f) => f.startTime);
     notifier.value = files;
