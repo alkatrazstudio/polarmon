@@ -197,6 +197,7 @@ class Device {
 
   Future<PolarExerciseEntry?> getCurrentExercise() async {
     await waitForFeature(PolarSdkFeature.h10ExerciseRecording);
+    await waitForFeature(PolarSdkFeature.fileTransfer);
     var recs = await polar.listExercises(dev.deviceId);
     var rec = recs.firstOrNull;
     return rec;
@@ -204,6 +205,7 @@ class Device {
 
   Future<DeviceRecordingStatus> refreshRecordingStatus() async {
     await waitForFeature(PolarSdkFeature.h10ExerciseRecording);
+    await waitForFeature(PolarSdkFeature.fileTransfer);
     var recStatus = await polar.requestRecordingStatus(dev.deviceId);
     var startedAt = timestampFromExerciseId(recStatus.entryId);
     var status = DeviceRecordingStatus(
@@ -216,6 +218,7 @@ class Device {
 
   Future<void> deleteRecording() async {
     await waitForFeature(PolarSdkFeature.h10ExerciseRecording);
+    await waitForFeature(PolarSdkFeature.fileTransfer);
     var rec = await getCurrentExercise();
     if(rec != null)
       await polar.removeExercise(dev.deviceId, rec);
@@ -224,6 +227,7 @@ class Device {
 
   Future<void> startRecording() async {
     await waitForFeature(PolarSdkFeature.h10ExerciseRecording);
+    await waitForFeature(PolarSdkFeature.fileTransfer);
     await deleteRecording();
     var dateStr = TimeUtil.timeToStr(DateTime.now());
     var exerciseId = exerciseIdPrefix + dateStr;
@@ -238,6 +242,7 @@ class Device {
 
   Future<void> stopRecording() async {
     await waitForFeature(PolarSdkFeature.h10ExerciseRecording);
+    await waitForFeature(PolarSdkFeature.fileTransfer);
     var status = await refreshRecordingStatus();
     if(status.isOngoing)
       await polar.stopRecording(dev.deviceId);
@@ -246,6 +251,7 @@ class Device {
 
   Future<DeviceRecording?> getRecording() async {
     await waitForFeature(PolarSdkFeature.h10ExerciseRecording);
+    await waitForFeature(PolarSdkFeature.fileTransfer);
     var rec = await getCurrentExercise();
     if(rec == null)
       return null;
