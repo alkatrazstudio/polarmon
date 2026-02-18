@@ -506,6 +506,7 @@ class DeviceClient {
 
   static Future<DeviceClient> connectToFirst(BuildContext context) async {
     await Service.start(context);
+    await Future.delayed(const Duration(seconds: 1)); // HACK: "ensure" startMonitoring() was called
     var deviceId = await Service.call('connectToFirst') as String;
     return DeviceClient(deviceId);
   }
