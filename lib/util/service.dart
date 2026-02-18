@@ -108,7 +108,7 @@ class Service extends TaskHandler {
 
     await FlutterForegroundTask.startService(
       serviceTypes: [
-         ForegroundServiceTypes.health,
+         ForegroundServiceTypes.specialUse,
       ],
       serviceId: 1,
       notificationTitle: 'PolarMon',
