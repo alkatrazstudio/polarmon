@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: MPL-2.0
 
 import 'dart:async';
+import 'dart:io';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
-
+import 'package:permission_handler/permission_handler.dart';
 import 'package:polar/polar.dart';
 
 import '../util/ecg_process.dart';
@@ -58,10 +60,17 @@ enum DeviceStatus {
   connected
 }
 
+class PolarState {
+  var polar = Polar();
+  var features = <String, Map<PolarSdkFeature, Completer<void>>>{};
+  var statuses = <String, ValueNotifier<DeviceStatus>>{};
+
+  static PolarState? _instance;
+
+  static PolarState get instance => _instance ??= PolarState();
+}
+
 class Device {
-  static final polar = Polar();
-  static final features = <String, Map<PolarSdkFeature, Completer<void>>>{};
-  static final statuses = <String, ValueNotifier<DeviceStatus>>{};
   static const exerciseIdPrefix = 'polarMon_';
 
   Device(this.dev) {
@@ -72,13 +81,13 @@ class Device {
   final recordingStatus = ValueNotifier<DeviceRecordingStatus?>(null);
 
   static Completer<void> getFeatureCompleter(String deviceId, PolarSdkFeature feature) {
-    var deviceFeatures = features.putIfAbsent(deviceId, () => {});
+    var deviceFeatures = PolarState.instance.features.putIfAbsent(deviceId, () => {});
     var featureCompleter = deviceFeatures.putIfAbsent(feature, () => Completer<void>());
     return featureCompleter;
   }
 
   static ValueNotifier<DeviceStatus> getStatusNotifier(String deviceId) {
-    var statusNotifier = statuses.putIfAbsent(deviceId, () => ValueNotifier(DeviceStatus.disconnected));
+    var statusNotifier = PolarState.instance.statuses.putIfAbsent(deviceId, () => ValueNotifier(DeviceStatus.disconnected));
     return statusNotifier;
   }
 
@@ -88,7 +97,7 @@ class Device {
   }
 
   static void startMonitoring() {
-    polar.sdkFeatureReady.listen((event) {
+    PolarState.instance.polar.sdkFeatureReady.listen((event) {
       var featureCompleter = getFeatureCompleter(event.identifier, event.feature);
       if(!featureCompleter.isCompleted)
         featureCompleter.complete();
@@ -96,21 +105,21 @@ class Device {
         print('FEATURE: ${event.feature.name}');
     });
 
-    polar.deviceConnecting.listen((event) {
+    PolarState.instance.polar.deviceConnecting.listen((event) {
       if(kDebugMode)
         print('CONNECTING: ${event.deviceId}');
       setStatus(event.deviceId, DeviceStatus.connecting);
     });
-    polar.deviceConnected.listen((event) {
+    PolarState.instance.polar.deviceConnected.listen((event) {
       if(kDebugMode)
         print('CONNECTED: ${event.deviceId}');
       setStatus(event.deviceId, DeviceStatus.connected);
     });
-    polar.deviceDisconnected.listen((event) {
+    PolarState.instance.polar.deviceDisconnected.listen((event) {
       if(kDebugMode)
         print('DISCONNECTED: ${event.info.deviceId}');
       setStatus(event.info.deviceId, DeviceStatus.disconnected);
-      features.remove(event.info.deviceId);
+      PolarState.instance.features.remove(event.info.deviceId);
     });
   }
 
@@ -120,12 +129,30 @@ class Device {
   }
 
   static Future<void> requestPermissions() async {
-    await polar.requestPermissions();
+    // copy-paste from Polar::requestPermissions()
+    // to not create the Polar singleton
+    if (Platform.isAndroid) {
+      final androidDeviceInfo = await DeviceInfoPlugin().androidInfo;
+      final sdkInt = androidDeviceInfo.version.sdkInt;
+
+      // If we are on Android M+
+      if (sdkInt >= 23) {
+        // If we are on an Android version before S
+        if (sdkInt < 31) {
+          await Permission.location.request();
+        }
+        // If we are on Android S+
+        if (sdkInt >= 31) {
+          await Permission.bluetoothScan.request();
+          await Permission.bluetoothConnect.request();
+        }
+      }
+    }
   }
 
   static Future<Device> connectToFirst() async {
-    var dev = await polar.searchForDevice().first;
-    await polar.connectToDevice(dev.deviceId, requestPermissions: false);
+    var dev = await PolarState.instance.polar.searchForDevice().first;
+    await PolarState.instance.polar.connectToDevice(dev.deviceId, requestPermissions: false);
     var device = Device(dev);
     return device;
   }
@@ -143,18 +170,18 @@ class Device {
   ValueNotifier<DeviceStatus> get statusNotifier => getStatusNotifier(dev.deviceId);
 
   Future<void> disconnect() async {
-    await polar.disconnectFromDevice(dev.deviceId);
+    await PolarState.instance.polar.disconnectFromDevice(dev.deviceId);
   }
 
   Stream<int> get batteryLevel async* {
     await waitForFeature(PolarSdkFeature.batteryInfo);
-    yield* polar.batteryLevel.where((event) => event.identifier == dev.deviceId).map((event) => event.level);
+    yield* PolarState.instance.polar.batteryLevel.where((event) => event.identifier == dev.deviceId).map((event) => event.level);
   }
 
   Stream<int> _startHrStreaming() async* {
     await waitForFeature(PolarSdkFeature.onlineStreaming);
     try {
-      await for(var data in polar.startHrStreaming(dev.deviceId)) {
+      await for(var data in PolarState.instance.polar.startHrStreaming(dev.deviceId)) {
         for(var sample in data.samples)
           yield sample.hr;
       }
@@ -168,10 +195,10 @@ class Device {
   Stream<EcgSample> _startEcgStreaming() async* {
     await waitForFeature(PolarSdkFeature.onlineStreaming);
     int? initialOffset;
-    var allSettings = await polar.requestStreamSettings(dev.deviceId, PolarDataType.ecg);
+    var allSettings = await PolarState.instance.polar.requestStreamSettings(dev.deviceId, PolarDataType.ecg);
     var maxSettings = allSettings.maxSettings();
     try {
-      await for(var data in polar.startEcgStreaming(dev.deviceId, settings: maxSettings)) {
+      await for(var data in PolarState.instance.polar.startEcgStreaming(dev.deviceId, settings: maxSettings)) {
         initialOffset ??= DateTime.now().microsecondsSinceEpoch - data.samples.first.timeStamp.microsecondsSinceEpoch;
         for(var rawSample in data.samples) {
           var ecgSample = EcgSample(
@@ -198,7 +225,7 @@ class Device {
   Future<PolarExerciseEntry?> getCurrentExercise() async {
     await waitForFeature(PolarSdkFeature.h10ExerciseRecording);
     await waitForFeature(PolarSdkFeature.fileTransfer);
-    var recs = await polar.listExercises(dev.deviceId);
+    var recs = await PolarState.instance.polar.listExercises(dev.deviceId);
     var rec = recs.firstOrNull;
     return rec;
   }
@@ -206,7 +233,7 @@ class Device {
   Future<DeviceRecordingStatus> refreshRecordingStatus() async {
     await waitForFeature(PolarSdkFeature.h10ExerciseRecording);
     await waitForFeature(PolarSdkFeature.fileTransfer);
-    var recStatus = await polar.requestRecordingStatus(dev.deviceId);
+    var recStatus = await PolarState.instance.polar.requestRecordingStatus(dev.deviceId);
     var startedAt = timestampFromExerciseId(recStatus.entryId);
     var status = DeviceRecordingStatus(
       startedAt: startedAt,
@@ -221,7 +248,7 @@ class Device {
     await waitForFeature(PolarSdkFeature.fileTransfer);
     var rec = await getCurrentExercise();
     if(rec != null)
-      await polar.removeExercise(dev.deviceId, rec);
+      await PolarState.instance.polar.removeExercise(dev.deviceId, rec);
     await refreshRecordingStatus();
   }
 
@@ -231,7 +258,7 @@ class Device {
     await deleteRecording();
     var dateStr = TimeUtil.timeToStr(DateTime.now());
     var exerciseId = exerciseIdPrefix + dateStr;
-    await polar.startRecording(
+    await PolarState.instance.polar.startRecording(
       dev.deviceId,
       exerciseId: exerciseId,
       interval: RecordingInterval.interval_1s,
@@ -245,7 +272,7 @@ class Device {
     await waitForFeature(PolarSdkFeature.fileTransfer);
     var status = await refreshRecordingStatus();
     if(status.isOngoing)
-      await polar.stopRecording(dev.deviceId);
+      await PolarState.instance.polar.stopRecording(dev.deviceId);
     await refreshRecordingStatus();
   }
 
@@ -255,7 +282,7 @@ class Device {
     var rec = await getCurrentExercise();
     if(rec == null)
       return null;
-    var recData = await polar.fetchExercise(dev.deviceId, rec);
+    var recData = await PolarState.instance.polar.fetchExercise(dev.deviceId, rec);
     if(recData.samples.where((hr) => hr > 0).take(2).length < 2)
       return null;
     var startedAt = timestampFromExerciseId(rec.entryId);

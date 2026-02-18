@@ -15,7 +15,6 @@ import '../util/settings.dart';
 Future<void> appMain() async {
   WidgetsFlutterBinding.ensureInitialized();
   var settingsFuture = Settings.load();
-  Device.startMonitoring();
   WakelockPlus.enable();
   RecordingManager.loadList();
   MarkManager.loadList();
