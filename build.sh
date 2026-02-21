@@ -13,4 +13,9 @@ flutter build apk \
     --dart-define=APP_GIT_HASH="$(git rev-parse HEAD)" \
     --split-debug-info=build/debug_info
 
-echo "APK dir: $(pwd)/build/app/outputs/flutter-apk"
+cd build/app/outputs/flutter-apk
+CUR_VER="$(git describe --tags --abbrev=0)"
+mv app-release.apk "polarmon-$CUR_VER.apk"
+
+echo
+echo "APK dir: $(pwd)"
