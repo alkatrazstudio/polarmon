@@ -1,6 +1,12 @@
 # PolarMon - CHANGELOG
 
 
+# v1.0.1 (Feb 21, 2026)
+
+* Fixed: crash on startup on new devices
+* Fixed: possible inability to use some device features
+
+
 ## v1.0.0 (Jan 1, 2026)
 
 - Added: background service
